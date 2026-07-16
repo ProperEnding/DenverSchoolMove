@@ -1,0 +1,8 @@
+{
+  "name": "where-next-denver",
+  "version": "4.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node test/verify.mjs index.html" },
+  "devDependencies": { "jsdom": "^24.0.0" }
+}

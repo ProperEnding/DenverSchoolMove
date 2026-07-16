@@ -257,7 +257,6 @@
       <button class="wb-open" id="openSettings"><span class="gear">⚙</span> Customize weights &amp; settings</button>
       <button class="wb-open" id="copyShare">Copy share link</button>
       <button class="wb-open" id="restartQuiz">Restart setup quiz</button>
-      <button class="wb-open" id="retakeQuiz">Retake quiz</button>
     </div>
   <div class="legend" aria-hidden="true">
     <span><span class="sq" style="background:var(--red)"></span>DPS</span>
@@ -1019,7 +1018,6 @@ function quizClose(){document.getElementById('quizOverlay').hidden=true;}
 function quizOpen(){quizStep=0;quizAnswers=[];document.getElementById('quizOverlay').hidden=false;quizRender();}
 document.getElementById('quizSkip').addEventListener('click',quizClose);
 document.getElementById('quizBack').addEventListener('click',()=>{if(quizStep>0){quizStep--;quizRender();}});
-document.getElementById('retakeQuiz').addEventListener('click',()=>{openDrawer(false);quizOpen();});
 document.getElementById('restartQuiz').addEventListener('click',quizOpen);
 if(!location.hash.startsWith('#w='))quizOpen();
 

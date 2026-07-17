@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Next: Denver Metro — v4.9</title>
+<title>Where Next: Denver Metro — v4.10</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -248,7 +248,7 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.9</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.10</div>
   <div class="header-row">
     <div>
       <h1>Where Next: <span class="accent">Denver Metro</span></h1>
@@ -338,7 +338,7 @@
 
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Built on the Where Next platform · v4.9</span>
+  <span>Built on the Where Next platform · v4.10</span>
 </footer>
 </div>
 
@@ -465,7 +465,7 @@ const CITY_LABELS=[
  {n:'ARVADA', ll:[39.80,-105.09]},
 ];
 
-// (stylized basemap removed in v4.9 — the Map tab uses real tiles)
+// (stylized basemap removed in v4.10 — the Map tab uses real tiles)
 
 // hood boundary as SVG path string (real rings or geometric suburb shape)
 function hoodPath(name){
@@ -740,6 +740,7 @@ function distMi(aLat,aLng,bLat,bLng){
 function hoodExpansion(h){
   const withD=SCHOOLS.map((s,i)=>({s,i,d:distMi(h.lat,h.lng,s.lat,s.lng)})).filter(x=>modeAllows(x.s));
   let near=withD.filter(x=>x.d<=3.0);
+  const within=near.length;
   let fallback=false;
   if(near.length<3){ fallback=true; near=[...withD].sort((a,b)=>a.d-b.d).slice(0,3); }
   near.sort((a,b)=>a.i-b.i);
@@ -748,7 +749,8 @@ function hoodExpansion(h){
     if(!cand.length)return `<div class="ex-srow"><span class="ex-lvl">${lname}</span><span class="ex-sname">No matching school listed</span></div>`;
     const inReach=cand.filter(x=>x.d<=3.0).sort((a,b)=>a.i-b.i);
     const pick=inReach[0]||[...cand].sort((a,b)=>a.d-b.d)[0];
-    return `<div class="ex-srow"><span class="ex-lvl">${lname}</span><span class="ex-rank">#${pick.i+1}</span><span class="ex-sname">${pick.s.name}</span>
+    const lvlRank=cand.findIndex(x=>x.i===pick.i)+1;
+    return `<div class="ex-srow"><span class="ex-lvl">${lname}</span><span class="ex-rank">#${lvlRank}</span><span class="ex-sname">${pick.s.name}</span>
       <span class="chip ${TYPE_CHIP[pick.s.type]}">${TYPE_LABEL[pick.s.type]}</span><span class="chip">${pick.s.grades}</span>
       <span class="ex-dist">${pick.d.toFixed(1)} mi</span>${locateBtn('school',pick.s.name,pick.s.lat,pick.s.lng)}
       <a class="site-link" href="${pick.s.url}" target="_blank" rel="noopener">Website ↗</a></div>`;
@@ -767,9 +769,9 @@ function hoodExpansion(h){
       <span><span class="ex-tag pro">Strongest</span>${pros.map(p=>`${p.label} <b>${p.v}</b>`).join(' \u00b7 ')}</span>
       <span><span class="ex-tag con">Tradeoffs</span>${cons.map(p=>`${p.label} <b>${p.v}</b>`).join(' \u00b7 ')}</span>
     </div>
-    <div class="ex-shead">Ideal school path \u00b7 top composite pick per level (within 3 mi, else nearest)${activeTypes().length===3?'':' \u00b7 '+(activeTypes().join(' + ')||'no types selected')}</div>
+    <div class="ex-shead">Ideal school path \u00b7 top composite pick per level (within 3 mi, else nearest) \u00b7 # = rank within that level${activeTypes().length===3?'':' \u00b7 '+(activeTypes().join(' + ')||'no types selected')}</div>
     <div class="ex-path">${pathRows}</div>
-    <div class="ex-shead">${fallback?'No listed schools within 3 mi \u2014 nearest three':'Listed schools within 3 mi'} \u00b7 # = composite rank</div>
+    <div class="ex-shead">${fallback?(within?`Only ${within} listed within 3 mi \u2014 nearest three shown`:'No listed schools within 3 mi \u2014 nearest three'):'Listed schools within 3 mi'} \u00b7 # = overall composite rank</div>
     ${rows}</div>`;
 }
 function hoodCardHTML(h,rank,score){

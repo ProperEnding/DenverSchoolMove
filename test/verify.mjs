@@ -70,7 +70,7 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('fallback header counts schools within 3 mi', /Only 2 listed within 3 mi/.test(det.textContent));
   d.querySelectorAll('script,style').forEach(el => el.remove());
   check('no literal \\u escapes in visible text', !/\\u[0-9a-fA-F]{4}/.test(d.body.textContent));
-  check('no personal references in visible text', !/current home|your current life|nicky/i.test(d.body.textContent));
+  check('no personal references in visible text', !/current home|your current life|nicky|college school/i.test(d.body.textContent));
 }
 {
   const { dom, errors } = load('#w=10,4,8,5,6,1,6,8,4,5,6,4,2,6,5&a=boulder&p=0');
@@ -81,6 +81,29 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('shared anchor applied', d.getElementById('anchorSel').value === 'boulder');
   check('legacy p= param tolerated, all areas shown', d.querySelectorAll('#hoodList .card').length === 48);
   check('new Lakewood areas render', /Belmar \/ Central Lakewood/.test(d.getElementById('hoodList').textContent) && /Solterra/.test(d.getElementById('hoodList').textContent));
+}
+{
+  const { dom, errors } = load('#w=10,4,8,5,6,1,6,8,4,5,6,4,2,6,5&a=downtown');
+  await tick(400);
+  const d = dom.window.document;
+  d.querySelector('#hoodList .card .fav-btn').click();
+  check('favoriting a hood writes fh= to hash', /fh=\d/.test(dom.window.location.hash));
+  d.querySelector('#schoolList .card .fav-btn').click();
+  check('fav tab count shows 2', d.getElementById('favTabCount').textContent.trim() === '(2)');
+  d.querySelector('.tab[data-tab="favs"]').click();
+  check('favorites panel active', d.getElementById('panel-favs').classList.contains('active'));
+  check('favorites show hood + school cards', d.querySelectorAll('#favHoodList .card').length === 1 && d.querySelectorAll('#favSchoolList .card').length === 1);
+  d.querySelector('#favHoodList .fav-btn').click();
+  check('unfavoriting from favorites tab empties hood section', d.querySelectorAll('#favHoodList .card').length === 0 && !d.getElementById('favHoodEmpty').hidden);
+  check('no runtime errors (favorites)', errors.length === 0);
+}
+{
+  const { dom, errors } = load('#w=10,4,8,5,6,1,6,8,4,5,6,4,2,6,5&a=downtown&fh=0,2&fs=1');
+  await tick(400);
+  const d = dom.window.document;
+  check('no runtime errors (shared favorites)', errors.length === 0);
+  check('shared fh/fs deep-links favorites', d.querySelectorAll('#favHoodList .card').length === 2 && d.querySelectorAll('#favSchoolList .card').length === 1);
+  check('shared favorites star their list cards', [...d.querySelectorAll('#hoodList .fav-btn.on')].length === 2);
 }
 {
   const { dom, errors } = load('#w=10,4,8,5,6,1,6,8,4,5,6,4,2,6,5&a=downtown&m=private');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Next: Denver Metro — v4.21</title>
+<title>Where Next: Denver Metro — v4.23</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -244,6 +244,12 @@
   .locate-btn{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;
     border:1.5px solid var(--ink);background:var(--cream);padding:4px 8px;cursor:pointer;}
   @media(hover:hover){.locate-btn:hover{background:var(--yellow);}}
+  .fav-btn{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;border:1.5px solid var(--ink);background:var(--cream);padding:3px 8px;cursor:pointer;}
+  @media(hover:hover){.fav-btn:hover{background:var(--yellow);}}
+  .fav-btn.on{background:var(--yellow);font-weight:700;}
+  .fav-head{font-family:var(--serif);font-size:21px;margin:20px 0 10px;}
+  .fav-empty{font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;}
+  #favTabCount{font-family:var(--mono);font-size:11px;}
   footer{margin-top:40px;padding-top:16px;border-top:3px solid var(--ink);font-family:var(--mono);font-size:11px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;}
   @media (max-width:760px){
     body{padding:0 12px 60px;}
@@ -259,7 +265,7 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.21</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.23</div>
   <div class="header-row">
     <div>
       <h1>Where Next: <span class="accent">Denver Metro</span></h1>
@@ -272,6 +278,7 @@
     <button class="tab active" role="tab" data-tab="hoods">Neighborhoods</button>
     <button class="tab" role="tab" data-tab="schools">Schools</button>
     <button class="tab" role="tab" data-tab="map">Map</button>
+    <button class="tab" role="tab" data-tab="favs">Favorites<span id="favTabCount"></span></button>
   </nav>
 </header>
 
@@ -347,9 +354,19 @@
   </div>
 </section>
 
+<section class="panel" id="panel-favs">
+  <div class="count-line">Neighborhoods rank live under current weights · schools show fixed composite rank · favorites travel inside your share link</div>
+  <h2 class="fav-head">Neighborhoods</h2>
+  <p class="fav-empty" id="favHoodEmpty">No favorite neighborhoods yet — tap ☆ Save on any neighborhood card (list or map).</p>
+  <main class="list" id="favHoodList"></main>
+  <h2 class="fav-head">Schools</h2>
+  <p class="fav-empty" id="favSchoolEmpty">No favorite schools yet — tap ☆ Save on any school card.</p>
+  <main class="list" id="favSchoolList"></main>
+</section>
+
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Built on the Where Next platform · v4.21</span>
+  <span>Built on the Where Next platform · v4.23</span>
 </footer>
 </div>
 
@@ -410,7 +427,7 @@
   </div>
   <div class="drawer-extra">
     <button class="wb-open" id="copyShare2">Copy share link</button>
-    <div class="share-note">The link encodes these weights, anchor &amp; toggles — send it and they open the tool wearing your lens.</div>
+    <div class="share-note">The link encodes these weights, anchor, toggles &amp; favorites — send it and they open the tool wearing your lens.</div>
   </div>
 </aside>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -494,6 +511,10 @@ function isApprox(name){ return !DENGEO[name]; }
 function locateBtn(kind,name,lat,lng){
   return `<button class="locate-btn" onclick="locateOnMap('${kind}','${name.replace(/'/g,"\\'")}',${lat},${lng})">Locate \u2197</button>`;
 }
+function favBtn(kind,idx){
+  const on=(kind==='hood'?favHoods:favSchools).has(idx);
+  return `<button class="fav-btn${on?' on':''}" data-fkind="${kind}" data-fidx="${idx}" aria-pressed="${on}" aria-label="${on?'Remove from favorites':'Add to favorites'}">${on?'\u2605 Saved':'\u2606 Save'}</button>`;
+}
 
 // =============== CRITERIA / PRESETS ===============
 const CRITERIA=[
@@ -542,7 +563,7 @@ const COST_CLASS={in:'cost-low',stretch:'cost-mid',over:'cost-high'};
 const HOODS=[
  {name:'Old Town Louisville',district:'Boulder Valley SD',group:'bvsv',hs:'Monarch HS',price:'$900K–1.6M',budget:'in',hoaHeavy:false,lat:39.978,lng:-105.132,note:'The all-criteria pick: top BVSD schools, Main Street soul, alley lots for ADUs/additions.',s:{schools:10,food:8,dine:8,lot:6,character:9,hoa:9,value:5,proximity:4,nature:7,alt:9,turnkey:4,mountains:7,safety:9,hazard:5}},
  {name:'Old Town Lafayette',district:'Boulder Valley SD',group:'bvsv',hs:'Centaurus HS (IB)',price:'$600–900K',budget:'in',hoaHeavy:false,lat:39.997,lng:-105.089,note:'Louisville\u2019s scrappier sibling — same district, funkier lots, best BVSD value. Peak to Peak + Dawson in town.',s:{schools:9,food:7,dine:7,lot:6,character:8,hoa:9,value:8,proximity:4,nature:6,alt:10,turnkey:4,mountains:6,safety:8,hazard:6}},
- {name:'South Boulder (Table Mesa / Martin Acres)',district:'Boulder Valley SD',group:'bvsv',hs:'Fairview HS',price:'$850K–1.7M',budget:'in',hoaHeavy:false,lat:39.985,lng:-105.25,note:'The Fairview reference — plus Boulder\u2019s whole progressive-school ecosystem next door.',s:{schools:10,food:6,dine:8,lot:6,character:5,hoa:8,value:4,proximity:3,nature:9,alt:8,turnkey:3,mountains:9,safety:9,hazard:4}},
+ {name:'South Boulder (Table Mesa / Martin Acres)',district:'Boulder Valley SD',group:'bvsv',hs:'Fairview HS',price:'$850K–1.7M',budget:'in',hoaHeavy:false,lat:39.985,lng:-105.25,note:'Boundary access to Fairview HS — plus Boulder\u2019s whole progressive-school ecosystem next door.',s:{schools:10,food:6,dine:8,lot:6,character:5,hoa:8,value:4,proximity:3,nature:9,alt:8,turnkey:3,mountains:9,safety:9,hazard:4}},
  {name:'Niwot',district:'St. Vrain Valley SD',group:'bvsv',hs:'Niwot HS (IB)',price:'$950K–2M',budget:'stretch',hoaHeavy:false,lat:40.096,lng:-105.17,note:'Acreage, privacy, and a top IB high school; tiny walkable core, long drive to everything.',s:{schools:9,food:4,dine:5,lot:10,character:7,hoa:7,value:4,proximity:2,nature:8,alt:6,turnkey:5,mountains:6,safety:10,hazard:6}},
  {name:'Superior',district:'Boulder Valley SD',group:'bvsv',hs:'Monarch HS',price:'$750K–1.1M',budget:'in',hoaHeavy:true,lat:39.94,lng:-105.16,note:'Same schools as Louisville, but Rock Creek is HOA-standard and character is thin.',s:{schools:9,food:4,dine:7,lot:5,character:6,hoa:8,value:6,proximity:4,nature:7,alt:7,turnkey:7,mountains:7,safety:9,hazard:4}},
  {name:'Holly Hills / Holly Ridge',district:'Cherry Creek SD',group:'cherry',hs:'Cherry Creek HS',price:'$600–850K',budget:'in',hoaHeavy:false,lat:39.665,lng:-104.917,note:'The metro\u2019s best schools-per-dollar arbitrage: Cherry Creek HS at one-fifth the Cherry Hills price.',s:{schools:9,food:3,dine:7,lot:7,character:5,hoa:8,value:10,proximity:6,nature:7,alt:9,turnkey:3,mountains:4,safety:8,hazard:7}},
@@ -603,7 +624,7 @@ const SCHOOLS=[
  {name:'Challenge School',type:'public',grades:'K\u20138',levels:['E','M'],area:'Cherry Creek SD',access:'Application (option school)',url:'https://www.google.com/search?q=Challenge+School+Cherry+Creek+official+site',lat:39.69,lng:-104.87,blurb:'CCSD\u2019s accelerated option K\u20138; among the metro\u2019s top-testing schools.'},
  {name:'Dennison Elementary',type:'public',grades:'K\u20136',levels:['E'],area:'Jeffco (Lakewood)',access:'Application (Jeffco option)',url:'https://dennison.jeffcopublicschools.org',lat:39.695,lng:-105.09,blurb:'Jeffco\u2019s classical option elementary; consistently top-3 statewide.'},
  {name:'Polaris Elementary',type:'public',grades:'1\u20135',levels:['E'],area:'NE Denver (DPS magnet)',access:'HGT qualification',url:'https://polaris.dpsk12.org',lat:39.76,lng:-104.959,blurb:'DPS\u2019s highly-gifted magnet; among Denver\u2019s top-ranked schools.'},
- {name:'Stanley British Primary',type:'private',grades:'K\u20138',levels:['E','M'],area:'Lowry',access:'Tuition (~$30K)',url:'https://www.stanleybps.org',lat:39.723,lng:-104.903,blurb:'Denver\u2019s flagship progressive school; closest cousin to The College School.'},
+ {name:'Stanley British Primary',type:'private',grades:'K\u20138',levels:['E','M'],area:'Lowry',access:'Tuition (~$30K)',url:'https://www.stanleybps.org',lat:39.723,lng:-104.903,blurb:'Denver\u2019s flagship progressive school \u2014 warm British-primary model, mixed-age K\u20138.'},
  {name:'Denver School of the Arts',type:'public',grades:'6\u201312',levels:['M','H'],area:'Park Hill (DPS magnet)',access:'Audition',url:'https://dsa.dpsk12.org',lat:39.747,lng:-104.904,blurb:'Ranked #6 in Colorado; the region\u2019s serious arts magnet.'},
  {name:'Slavens K\u20138',type:'public',grades:'K\u20138',levels:['E','M'],area:'University Park (DPS)',access:'Boundary (DPS)',url:'https://slavens.dpsk12.org',lat:39.661,lng:-104.948,blurb:'DPS\u2019s most coveted boundary school \u2014 guaranteed by address only.'},
  {name:'St. Mary\u2019s Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Cherry Hills Village',access:'Tuition ($26\u201330K)',url:'https://www.smanet.org',lat:39.636,lng:-104.961,blurb:'Denver\u2019s oldest school (1864); co-ed PK\u20138, all-girls HS.'},
@@ -613,7 +634,7 @@ const SCHOOLS=[
  {name:'Rock Canyon HS',type:'public',grades:'9\u201312',levels:['H'],area:'Highlands Ranch (DCSD)',access:'Boundary (DCSD)',url:'https://www.google.com/search?q=Rock+Canyon+High+School+DCSD',lat:39.53,lng:-104.92,blurb:'One of DCSD\u2019s twin flagships.'},
  {name:'Mountain Vista HS',type:'public',grades:'9\u201312',levels:['H'],area:'Highlands Ranch (DCSD)',access:'Boundary (DCSD)',url:'https://www.google.com/search?q=Mountain+Vista+High+School+DCSD',lat:39.525,lng:-104.945,blurb:'The other DCSD flagship; nationally recognized programs.'},
  {name:'Dawson School',type:'private',grades:'K\u201312',levels:['E','M','H'],area:'Lafayette',access:'Tuition (~$32K)',url:'https://www.dawsonschool.org',lat:40.015,lng:-105.067,blurb:'Boulder County\u2019s big independent; the Louisville/Lafayette private backstop.'},
- {name:'The Logan School',type:'private',grades:'K\u20138',levels:['E','M'],area:'NE Denver / Lowry',access:'Gifted admission + tuition',url:'https://www.theloganschool.org',lat:39.731,lng:-104.885,blurb:'Radically experiential and outdoors-heavy \u2014 the College School\u2019s intensity.'},
+ {name:'The Logan School',type:'private',grades:'K\u20138',levels:['E','M'],area:'NE Denver / Lowry',access:'Gifted admission + tuition',url:'https://www.theloganschool.org',lat:39.731,lng:-104.885,blurb:'Radically experiential and outdoors-heavy, built around gifted-identified kids.'},
  {name:'DSST (flagship network)',type:'charter',grades:'6\u201312',levels:['M','H'],area:'Central Park + 6 campuses',access:'Lottery (zone priority)',url:'https://www.dsstpublicschools.org',lat:39.757,lng:-104.888,blurb:'The state\u2019s strongest charter network; multiple top-12 campuses.'},
  {name:'Prospect Ridge Academy',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Broomfield (Adams 12)',access:'Lottery',url:'https://www.prospectridgeacademy.org',lat:39.945,lng:-105.045,blurb:'Ranked #9 in Colorado; full K\u201312 charter arc in the north metro.'},
  {name:'Mackintosh Academy',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Littleton (+ Boulder)',access:'Gifted admission + tuition',url:'https://www.mackintoshacademy.com',lat:39.607,lng:-105.016,blurb:'IB program for gifted/creative learners; whole-child culture.'},
@@ -622,7 +643,7 @@ const SCHOOLS=[
  {name:'Arapahoe HS',type:'public',grades:'9\u201312',levels:['H'],area:'Centennial (LPS)',access:'Boundary (LPS)',url:'https://www.google.com/search?q=Arapahoe+High+School+Littleton+Public+Schools',lat:39.596,lng:-104.955,blurb:'Nationally recognized; anchors the Southglenn value case.'},
  {name:'Heritage HS',type:'public',grades:'9\u201312',levels:['H'],area:'Littleton (LPS)',access:'Boundary (LPS)',url:'https://www.google.com/search?q=Heritage+High+School+Littleton+Public+Schools',lat:39.596,lng:-104.99,blurb:'LPS\u2019s other nationally recognized HS; guaranteed by address.'},
  {name:'Ricks Center for Gifted',type:'private',grades:'PK\u20138',levels:['E','M'],area:'University of Denver',access:'Gifted admission + tuition',url:'https://www.du.edu/ricks',lat:39.677,lng:-104.962,blurb:'Gifted PK\u20138 on the DU campus; University Park\u2019s in-neighborhood option.'},
- {name:'Watershed School',type:'private',grades:'6\u201312',levels:['M','H'],area:'Boulder',access:'Tuition (~$30K)',url:'https://www.watershedschool.org',lat:40.014,lng:-105.253,blurb:'Tiny, progressive, expedition-based \u2014 College School spirit at HS age.'},
+ {name:'Watershed School',type:'private',grades:'6\u201312',levels:['M','H'],area:'Boulder',access:'Tuition (~$30K)',url:'https://www.watershedschool.org',lat:40.014,lng:-105.253,blurb:'Tiny, progressive, and expedition-based \u2014 a rare project-driven middle & high school.'},
  {name:'St. Anne\u2019s Episcopal',type:'private',grades:'PK\u20138',levels:['E','M'],area:'University area',access:'Tuition (~$28K)',url:'https://www.st-annes.org',lat:39.669,lng:-104.96,blurb:'Seven leafy acres; the warm traditional K\u20138 alternative to Graland.'},
  {name:'Valor Christian',type:'private',grades:'9\u201312',levels:['H'],area:'Highlands Ranch',access:'Tuition (~$21K)',url:'https://www.valorchristian.com',lat:39.545,lng:-105.005,blurb:'The south metro\u2019s big Christian prep; strong academics and athletics.'},
  {name:'Mullen HS',type:'private',grades:'9\u201312',levels:['H'],area:'SW Denver',access:'Tuition (~$18K)',url:'https://www.mullenhigh.com',lat:39.66,lng:-105.045,blurb:'Lasallian Catholic prep; among Denver\u2019s top-ranked private highs.'},
@@ -652,15 +673,16 @@ const SCHOOLS=[
  {name:'Denver Christian',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Lakewood',access:'Tuition (~$15K)',url:'https://www.denverchristian.org',lat:39.68,lng:-105.09,blurb:'Century-old Reformed PK\u201312; faith woven through the curriculum.'},
  {name:'Bishop Machebeuf HS',type:'private',grades:'9\u201312',levels:['H'],area:'Lowry',access:'Tuition (~$15K)',url:'https://www.machebeuf.org',lat:39.735,lng:-104.9,blurb:'Small Catholic HS in Lowry; personal scale, solid academics.'},
  {name:'Faith Christian Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Arvada',access:'Tuition (~$13K)',url:'https://www.google.com/search?q=Faith+Christian+Academy+Arvada',lat:39.8,lng:-105.1,blurb:'The NW metro\u2019s main PK\u201312 Christian option.'},
- {name:'Odyssey School of Denver',type:'charter',grades:'K\u20138',levels:['E','M'],area:'NE Park Hill',access:'Lottery',url:'https://www.odysseydenver.org',lat:39.747,lng:-104.91,blurb:'EL Education \u2014 the public cousin of the College School tradition.'},
+ {name:'Odyssey School of Denver',type:'charter',grades:'K\u20138',levels:['E','M'],area:'NE Park Hill',access:'Lottery',url:'https://www.odysseydenver.org',lat:39.747,lng:-104.91,blurb:'EL Education charter \u2014 expeditionary, project-based learning with a lottery seat.'},
  {name:'Mountain Phoenix Community',type:'charter',grades:'PK\u20138',levels:['E','M'],area:'Wheat Ridge (Jeffco)',access:'Lottery',url:'https://www.mountainphoenix.org',lat:39.785,lng:-105.104,blurb:'Waldorf-inspired charter; patches Wheat Ridge\u2019s guaranteed-school gap.'},
- {name:'Boulder Journey School',type:'private',grades:'ECE (6wk\u20135yr)',levels:['ECE'],area:'North Boulder',access:'Tuition (monthly)',url:'https://www.boulderjourneyschool.com',lat:40.039,lng:-105.273,blurb:'One of the most influential Reggio-inspired programs in the US \u2014 relevant right now.'},
+ {name:'Boulder Journey School',type:'private',grades:'ECE (6wk\u20135yr)',levels:['ECE'],area:'North Boulder',access:'Tuition (monthly)',url:'https://www.boulderjourneyschool.com',lat:40.039,lng:-105.273,blurb:'One of the most influential Reggio-inspired early-childhood programs in the US.'},
 ];
 const TYPE_LABEL={private:'Private',public:'Public',charter:'Public charter/magnet'};
 const TYPE_CHIP={private:'t-private',public:'t-public',charter:'t-charter'};
 const TYPE_COLOR={private:'var(--red)',public:'var(--blue)',charter:'var(--green)'};
 
 // =============== SCORING ===============
+let favHoods=new Set(), favSchools=new Set(); // indices into HOODS/SCHOOLS — encoded in the share hash (fh/fs)
 let schoolTypes={public:true,charter:true,private:true}; // top-bar checkboxes
 const activeTypes=()=>['public','charter','private'].filter(t=>schoolTypes[t]);
 const modeAllows=s=>!!schoolTypes[s.type];
@@ -831,7 +853,7 @@ function hoodCardHTML(h,rank,score){
     </div>
     <div class="wheel">${wheelSVG(h)}<div class="wheel-read"><span class="wr-idle">hover a wedge · score &amp; meaning</span></div></div>
     <div class="side"><span class="score">${score.toFixed(2)}</span><span class="score-label">Live score</span>
-      ${locateBtn('hood',h.name,h.lat,h.lng)}</div>
+      ${locateBtn('hood',h.name,h.lat,h.lng)}${favBtn('hood',HOODS.indexOf(h))}</div>
     ${hoodExpansion(h)}`;
 }
 function renderHoods(){
@@ -855,7 +877,56 @@ function renderHoods(){
     hoodListEl.appendChild(card);
   });
   document.getElementById('countLine').textContent=`${shown} of ${HOODS.length} areas shown \u00b7 sorted by live weighted score`;
+  renderFavs();
 }
+
+// =============== FAVORITES ===============
+function hoodCardToggle(card){
+  card.addEventListener('click',e=>{
+    if(e.target.closest('a,button,input'))return;
+    const was=card.classList.contains('open');
+    card.classList.toggle('open',!was);
+    card.querySelector('.exp-hint').innerHTML=!was?'\u25b4 close':'\u25be schools &amp; take';
+  });
+}
+function renderFavs(){
+  const hEl=document.getElementById('favHoodList'), sEl=document.getElementById('favSchoolList');
+  hEl.innerHTML='';sEl.innerHTML='';
+  const ranked=rankedHoods();
+  let hCount=0;
+  ranked.forEach(({h,score},i)=>{
+    if(!favHoods.has(HOODS.indexOf(h)))return;
+    hCount++;
+    const card=document.createElement('article');
+    card.className='card hcard g-'+h.group;
+    card.innerHTML=hoodCardHTML(h,i+1,score);
+    hoodCardToggle(card);
+    hEl.appendChild(card);
+  });
+  [...favSchools].sort((a,b)=>a-b).forEach(i=>{
+    const s=SCHOOLS[i];if(!s)return;
+    const card=document.createElement('article');
+    card.className='card';
+    card.innerHTML=schoolCardHTML(s,i,i+1,'Composite rank');
+    sEl.appendChild(card);
+  });
+  document.getElementById('favHoodEmpty').hidden=hCount>0;
+  document.getElementById('favSchoolEmpty').hidden=favSchools.size>0;
+  const n=favHoods.size+favSchools.size;
+  document.getElementById('favTabCount').textContent=n?` (${n})`:'';
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest?e.target.closest('.fav-btn'):null;
+  if(!b)return;
+  const kind=b.dataset.fkind, idx=+b.dataset.fidx;
+  const set=kind==='hood'?favHoods:favSchools;
+  set.has(idx)?set.delete(idx):set.add(idx);
+  const on=set.has(idx);
+  document.querySelectorAll(`.fav-btn[data-fkind="${kind}"][data-fidx="${idx}"]`).forEach(x=>{
+    x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);x.innerHTML=on?'\u2605 Saved':'\u2606 Save';
+  });
+  renderFavs();syncHash();
+});
 
 // =============== TAB 2 ===============
 let segMode='all', lvlMode='all';
@@ -870,6 +941,18 @@ document.querySelectorAll('.seg-btn.lvl').forEach(b=>b.addEventListener('click',
   b.classList.add('active');renderSchools();
 }));
 const LVL_NAME={all:'',E:'elementary ',M:'middle ',H:'high '};
+function schoolCardHTML(s,idx,rankNum,rankLabel){
+  return `<div class="rank">${rankNum}</div>
+    <div class="body">
+      <div class="name-row"><span class="name">${s.name}</span>
+        <span class="chip ${TYPE_CHIP[s.type]}">${TYPE_LABEL[s.type]}</span><span class="chip">${s.grades}</span></div>
+      <div class="meta"><span><b>${s.area}</b></span><span class="access-note">Access: ${s.access}</span></div>
+      <div class="note">${s.blurb}</div>
+    </div>
+    <div class="side"><span class="score">#${rankNum}</span><span class="score-label">${rankLabel}</span>
+      ${locateBtn('school',s.name,s.lat,s.lng)}${favBtn('school',idx)}
+      <a class="site-link" href="${s.url}" target="_blank" rel="noopener">Website ↗</a></div>`;
+}
 function renderSchools(){
   const el=document.getElementById('schoolList');el.innerHTML='';
   const filtered=SCHOOLS.filter(s=>{
@@ -883,16 +966,7 @@ function renderSchools(){
   filtered.forEach((s,i)=>{
     const card=document.createElement('article');
     card.className='card'+(i<3?' top3':'');
-    card.innerHTML=`<div class="rank">${i+1}</div>
-      <div class="body">
-        <div class="name-row"><span class="name">${s.name}</span>
-          <span class="chip ${TYPE_CHIP[s.type]}">${TYPE_LABEL[s.type]}</span><span class="chip">${s.grades}</span></div>
-        <div class="meta"><span><b>${s.area}</b></span><span class="access-note">Access: ${s.access}</span></div>
-        <div class="note">${s.blurb}</div>
-      </div>
-      <div class="side"><span class="score">#${i+1}</span><span class="score-label">Rank in view</span>
-        ${locateBtn('school',s.name,s.lat,s.lng)}
-        <a class="site-link" href="${s.url}" target="_blank" rel="noopener">Website \u2197</a></div>`;
+    card.innerHTML=schoolCardHTML(s,SCHOOLS.indexOf(s),i+1,'Rank in view');
     el.appendChild(card);
   });
   const act=activeTypes();
@@ -1016,7 +1090,8 @@ document.querySelectorAll('input[name="schoolType"]').forEach(cb=>cb.addEventLis
 function buildHash(){
   const w=CRITERIA.map(c=>weights[c.key]).join(',');
   const act=activeTypes();
-  return '#w='+w+'&a='+commuteAnchor+(act.length===3?'':'&t='+act.join(','));
+  const fh=[...favHoods].sort((a,b)=>a-b).join(','), fs=[...favSchools].sort((a,b)=>a-b).join(',');
+  return '#w='+w+'&a='+commuteAnchor+(act.length===3?'':'&t='+act.join(','))+(fh?'&fh='+fh:'')+(fs?'&fs='+fs:'');
 }
 function syncHash(){
   const h=buildHash();
@@ -1034,6 +1109,8 @@ function applyHash(){
     if(q.m==='public'){schoolTypes={public:true,charter:true,private:false};applySchoolTypes();}
     else if(q.m==='private'){schoolTypes={public:false,charter:false,private:true};applySchoolTypes();}
     if(q.t!==undefined){const set=q.t.split(',');['public','charter','private'].forEach(t=>schoolTypes[t]=set.includes(t));applySchoolTypes();}
+    if(q.fh)q.fh.split(',').forEach(x=>{const n=+x;if(Number.isInteger(n)&&n>=0&&n<HOODS.length)favHoods.add(n);});
+    if(q.fs)q.fs.split(',').forEach(x=>{const n=+x;if(Number.isInteger(n)&&n>=0&&n<SCHOOLS.length)favSchools.add(n);});
   }catch(e){}
 }
 function copyShare(btn){

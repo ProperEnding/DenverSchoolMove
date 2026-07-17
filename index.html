@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Next: Denver Metro — v4.5</title>
+<title>Where Next: Denver Metro — v4.9</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -57,6 +57,9 @@
   .wb-persona{font-family:var(--mono);font-size:12px;font-weight:700;background:var(--yellow);border:1.5px solid var(--ink);padding:3px 9px;}
   .wb-open{font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;border:2px solid var(--ink);background:var(--cream);padding:6px 11px;cursor:pointer;}
   .wb-open:hover{background:var(--yellow);}
+  .wb-mode{display:flex;align-items:center;gap:10px;}
+  .wb-mode label{display:flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;}
+  .wb-mode input{accent-color:var(--ink);cursor:pointer;}
   #drawerOverlay{display:none;position:fixed;inset:0;background:rgba(27,23,16,.4);z-index:1200;}
   #drawerOverlay.on{display:block;}
   #settingsDrawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,92vw);background:var(--bone);border-left:3px solid var(--ink);
@@ -113,7 +116,8 @@
   .access-note{font-family:var(--mono);font-size:11px;color:var(--ink-soft);}
   .note{margin-top:6px;font-size:13px;max-width:600px;}
   .wheel{display:flex;align-items:center;justify-content:center;padding:6px 10px 6px 0;}
-  .wheel svg{display:block;}
+  .wheel svg{display:block;width:140px;height:144px;transition:width .3s ease,height .3s ease;}
+  .card.open .wheel svg{width:240px;height:247px;}
   .wheel .wedge{stroke:var(--ink);stroke-width:.6;}
   .wheel .wedge.muted{opacity:.18;}
   .wheel .wring{fill:none;stroke:var(--ink);opacity:.16;stroke-width:.6;}
@@ -141,6 +145,12 @@
   .detail p{font-size:13.5px;margin-bottom:8px;}
   .detail .dmeta{font-family:var(--mono);font-size:12px;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:8px;margin-top:8px;}
   .detail .empty{color:var(--ink-soft);font-size:13.5px;}
+  .detail .card.hcard{grid-template-columns:44px 1fr;cursor:default;}
+  .detail .card.hcard:hover{transform:none;box-shadow:none;}
+  .detail .card .exp-hint{display:none;}
+  .detail .wheel{display:flex;grid-column:1/-1;border-top:2px solid var(--ink);padding:10px;}
+  .detail .card .side{grid-column:1/-1;border-left:none;border-top:2px solid var(--ink);flex-direction:row;justify-content:space-between;padding:8px 12px;}
+  .detail .drank{margin-bottom:10px;}
   .map-credit{font-family:var(--mono);font-size:10px;color:var(--ink-soft);margin-top:8px;line-height:1.6;}
   .map-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;fill:var(--ink-soft);}
   .hwy-label{font-family:var(--mono);font-size:9px;letter-spacing:.06em;fill:var(--ink-soft);}
@@ -198,7 +208,10 @@
   .source-line{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);margin:2px 0 14px;}
   .source-line a{color:var(--red);text-decoration:underline;text-underline-offset:2px;}
   .source-line a:hover{background:var(--yellow);}
-  .card.hcard{cursor:pointer;}
+  .card.hcard{cursor:pointer;grid-template-columns:60px 1fr 240px 200px;}
+  .hcard .note{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
+  .card.open .note{display:block;-webkit-line-clamp:unset;}
+  .ex-lvl{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink);background:var(--yellow);padding:2px 6px;min-width:70px;text-align:center;}
   .exp-hint{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
     color:var(--ink-soft);margin-left:auto;white-space:nowrap;}
   .card.open .exp-hint{color:var(--red);}
@@ -223,7 +236,7 @@
   footer{margin-top:40px;padding-top:16px;border-top:3px solid var(--ink);font-family:var(--mono);font-size:11px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;}
   @media (max-width:760px){
     body{padding:0 12px 60px;}
-    .card{grid-template-columns:44px 1fr;}
+    .card,.card.hcard{grid-template-columns:44px 1fr;}
     .card .side{grid-column:1/-1;border-left:none;border-top:2px solid var(--ink);flex-direction:row;justify-content:space-between;padding:8px 12px;}
     svg.mini{width:92px;}
     .map-wrap{grid-template-columns:1fr;}
@@ -235,7 +248,7 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.5</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.9</div>
   <div class="header-row">
     <div>
       <h1>Where Next: <span class="accent">Denver Metro</span></h1>
@@ -253,10 +266,16 @@
 
 <section class="panel active" id="panel-hoods">
   <div class="weight-bar">
-      <span class="wb-label">Weights:</span><span class="wb-persona" id="personaName">Your ranking</span>
+      <span class="wb-label">Weights:</span><span class="wb-persona" id="personaName">Schools first</span>
       <button class="wb-open" id="openSettings"><span class="gear">⚙</span> Customize weights &amp; settings</button>
       <button class="wb-open" id="copyShare">Copy share link</button>
       <button class="wb-open" id="restartQuiz">Restart setup quiz</button>
+      <span class="wb-mode" role="group" aria-label="School types included">
+        <span class="wb-label">Schools:</span>
+        <label title="Assigned district schools; unchecking ignores the assigned-school criterion in scores"><input type="checkbox" name="schoolType" value="public" checked> Public</label>
+        <label title="Lottery charters &amp; magnets"><input type="checkbox" name="schoolType" value="charter" checked> Charter</label>
+        <label title="Tuition schools; unchecking both Charter and Private ignores the Private &amp; charter access criterion in scores"><input type="checkbox" name="schoolType" value="private" checked> Private</label>
+      </span>
     </div>
   <div class="legend" aria-hidden="true">
     <span><span class="sq" style="background:var(--red)"></span>DPS</span>
@@ -269,7 +288,7 @@
 </section>
 
 <section class="panel" id="panel-schools">
-  <div class="seg" role="group" aria-label="School type filter">
+  <div class="seg" role="group" aria-label="School type filter" id="segType">
     <button class="seg-btn active" data-seg="all">All</button>
     <button class="seg-btn" data-seg="public">Public</button>
     <button class="seg-btn" data-seg="private">Private</button>
@@ -319,7 +338,7 @@
 
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Built on the Where Next platform · v4.5</span>
+  <span>Built on the Where Next platform · v4.9</span>
 </footer>
 </div>
 
@@ -362,7 +381,7 @@
       <div class="anchor-row"><label for="anchorSel">Commute anchor</label>
         <select id="anchorSel"><option value="downtown">Downtown Denver</option><option value="dtc">Denver Tech Center</option><option value="boulder">Boulder</option></select></div>
       <div class="presets" role="group" aria-label="Weight presets">
-        <button class="preset-btn active" data-preset="nicky">Your ranking</button>
+        <button class="preset-btn active" data-preset="default">Schools first</button>
         <button class="preset-btn" data-preset="equal">Equal weights</button>
         <button class="preset-btn" data-preset="value">Value hunter</button>
         <button class="preset-btn" data-preset="build">Land &amp; horses</button>
@@ -379,7 +398,6 @@
     </div>
   </div>
   <div class="drawer-extra">
-    <label class="filter"><input type="checkbox" id="fPersonal" checked> Include personal entries (current home)</label>
     <button class="wb-open" id="copyShare2">Copy share link</button>
     <div class="share-note">The link encodes these weights, anchor &amp; toggles — send it and they open the tool wearing your lens.</div>
   </div>
@@ -399,8 +417,8 @@ const inDenverFrame=(lat,lng)=>lng>DEN.lngA+0.01&&lng<DEN.lngB-0.01&&lat>DEN.lat
 const DENGEO={"University Park / Observatory Park":{"rings":[[[-104.9735,39.6677],[-104.9734,39.6894],[-104.9632,39.685],[-104.9594,39.6847],[-104.9591,39.6834],[-104.9537,39.6847],[-104.9486,39.6846],[-104.9407,39.683],[-104.9407,39.6676],[-104.9491,39.667],[-104.9515,39.6676],[-104.958,39.6676],[-104.9586,39.6715],[-104.9591,39.6718],[-104.9594,39.6639],[-104.9631,39.6616],[-104.9735,39.6677]]],"c":[-104.9571,39.6774]},"Wash Park (East & West)":{"rings":[[[-104.9876,39.7112],[-104.9746,39.7111],[-104.9737,39.7083],[-104.9729,39.7183],[-104.9699,39.7174],[-104.9658,39.7142],[-104.9593,39.7157],[-104.9594,39.6864],[-104.9612,39.6847],[-104.9642,39.6853],[-104.9699,39.6881],[-104.9728,39.6906],[-104.9734,39.6898],[-104.9875,39.7003],[-104.9876,39.7112]]],"c":[-104.9734,39.7043]},"Cory-Merrill / Bonnie Brae":{"rings":[[[-104.9594,39.6851],[-104.9593,39.6911],[-104.9581,39.6966],[-104.9555,39.697],[-104.9593,39.7002],[-104.9589,39.7157],[-104.9537,39.7154],[-104.9517,39.7146],[-104.9482,39.7117],[-104.9407,39.7116],[-104.9386,39.6979],[-104.9407,39.6967],[-104.9407,39.6831],[-104.9486,39.6846],[-104.9594,39.6851]]],"c":[-104.9483,39.6991]},"Congress Park":{"rings":[[[-104.9602,39.7271],[-104.9598,39.7368],[-104.9591,39.7401],[-104.9407,39.7401],[-104.9407,39.7269],[-104.9425,39.7256],[-104.9579,39.7256],[-104.9602,39.7271]]],"c":[-104.9503,39.732]},"Park Hill (south / central)":{"rings":[[[-104.9407,39.7401],[-104.9407,39.7438],[-104.9395,39.7506],[-104.9406,39.751],[-104.9406,39.7565],[-104.9395,39.762],[-104.9069,39.762],[-104.9034,39.758],[-104.9034,39.7522],[-104.9058,39.7514],[-104.9034,39.751],[-104.9035,39.7426],[-104.9069,39.7402],[-104.9407,39.7401]]],"c":[-104.9226,39.7512]},"Hilltop / Crestmoor":{"rings":[[[-104.9407,39.7146],[-104.9407,39.7253],[-104.9034,39.7256],[-104.9035,39.722],[-104.9079,39.7215],[-104.9082,39.7184],[-104.9098,39.7183],[-104.9124,39.7151],[-104.9088,39.7131],[-104.9102,39.7112],[-104.9293,39.7112],[-104.9407,39.7146]]],"c":[-104.9248,39.7184]},"Country Club / Cherry Creek North":{"rings":[[[-104.9733,39.7188],[-104.9729,39.7291],[-104.9602,39.7291],[-104.9598,39.7254],[-104.9407,39.7256],[-104.9407,39.7116],[-104.948,39.7116],[-104.9515,39.7145],[-104.9566,39.7159],[-104.9592,39.716],[-104.9658,39.7142],[-104.9699,39.7174],[-104.9733,39.7188]]],"c":[-104.9569,39.7221]},"Berkeley / Regis (south of 52nd)":{"rings":[[[-105.0627,39.7838],[-105.0626,39.7911],[-105.0346,39.7911],[-105.03,39.792],[-105.0252,39.7856],[-105.0256,39.7848],[-105.0252,39.7844],[-105.0253,39.772],[-105.026,39.7693],[-105.0515,39.7693],[-105.0532,39.7836],[-105.0627,39.7838]]],"c":[-105.0389,39.7778]},"West Highland / Sloan\u2019s Lake":{"rings":[[[-105.0532,39.7693],[-105.0252,39.7693],[-105.0252,39.762],[-105.0272,39.7589],[-105.0252,39.7585],[-105.0252,39.747],[-105.033,39.7464],[-105.0387,39.744],[-105.0526,39.744],[-105.0526,39.7585],[-105.0521,39.7589],[-105.0532,39.7693]]],"c":[-105.0389,39.7527]},"Central Park (fka Stapleton)":{"rings":[[[-104.9022,39.751],[-104.9035,39.7584],[-104.9035,39.7838],[-104.8991,39.7984],[-104.8753,39.8128],[-104.866,39.7984],[-104.8658,39.776],[-104.8316,39.7729],[-104.8329,39.7666],[-104.8562,39.7675],[-104.8543,39.7582],[-104.848,39.7555],[-104.866,39.7547],[-104.8799,39.7475],[-104.8976,39.7474],[-104.9022,39.751]]],"c":[-104.8847,39.7799]},"LoDo / Union Station":{"rings":[[[-104.9917,39.7523],[-105.0004,39.7455],[-105.0015,39.7486],[-105.0078,39.7534],[-105.0082,39.7548],[-105.0032,39.7604],[-104.9995,39.7585],[-104.9917,39.7523]]],"c":[-104.9997,39.7529]},"Uptown (North Cap Hill)":{"rings":[[[-104.9734,39.74],[-104.9874,39.7401],[-104.9872,39.7474],[-104.9776,39.7469],[-104.9735,39.7437],[-104.9735,39.7437],[-104.9734,39.7437],[-104.9734,39.7437],[-104.9734,39.7437],[-104.9734,39.7437],[-104.9734,39.7437],[-104.9734,39.7437],[-104.9734,39.74]]],"c":[-104.9804,39.7419]},"Cap Hill / Cheesman":{"rings":[[[-104.9874,39.7273],[-104.9874,39.7401],[-104.9598,39.74],[-104.9602,39.7291],[-104.9726,39.7291],[-104.9729,39.7273],[-104.9874,39.7273]]],"c":[-104.9737,39.7345]},"Baker":{"rings":[[[-104.9874,39.7256],[-104.9874,39.6966],[-104.9924,39.6967],[-104.9924,39.6992],[-104.9974,39.7051],[-105.0025,39.7157],[-105.0067,39.7186],[-105.0096,39.7215],[-105.0153,39.724],[-105.0158,39.7255],[-104.9874,39.7256]]],"c":[-104.9937,39.7104]},"Platt Park":{"rings":[[[-104.9734,39.6898],[-104.9734,39.6785],[-104.9876,39.6785],[-104.9874,39.6966],[-104.9822,39.6967],[-104.9762,39.6914],[-104.9734,39.6898]]],"c":[-104.9805,39.6842]},"LoHi (Highland)":{"rings":[[[-104.9982,39.7693],[-104.9982,39.7621],[-105.0037,39.76],[-105.0095,39.7539],[-105.0214,39.7585],[-105.0252,39.7585],[-105.0252,39.7693],[-104.9982,39.7693]]],"c":[-105.0131,39.7611]},"Sunnyside":{"rings":[[[-104.9982,39.7826],[-104.9982,39.7693],[-105.0252,39.7693],[-105.0252,39.7844],[-105.007,39.7833],[-105.0024,39.7836],[-104.9982,39.7826]]],"c":[-105.0117,39.7759]},"Curtis Park / RiNo / Cole":{"rings":[[[-105.0028,39.7607],[-104.9957,39.7629],[-104.9921,39.7655],[-104.9853,39.7672],[-104.9787,39.7749],[-104.9719,39.7704],[-104.9659,39.7729],[-104.9597,39.7722],[-104.9598,39.762],[-104.9733,39.7619],[-104.9734,39.7438],[-104.9776,39.747],[-104.9872,39.7475],[-104.9883,39.7497],[-105.0028,39.7607]]],"c":[-104.9845,39.7552]},"City Park West":{"rings":[[[-104.9598,39.74],[-104.9734,39.74],[-104.9734,39.7507],[-104.9598,39.7507],[-104.9598,39.74]]],"c":[-104.9666,39.7454]},"Whittier":{"rings":[[[-104.9598,39.7507],[-104.9734,39.7507],[-104.9733,39.762],[-104.9598,39.762],[-104.9598,39.7507]]],"c":[-104.9666,39.7564]},"Skyland":{"rings":[[[-104.9406,39.751],[-104.9598,39.7507],[-104.9598,39.762],[-104.9406,39.762],[-104.9406,39.751]]],"c":[-104.9502,39.7565]},"Clayton":{"rings":[[[-104.9406,39.762],[-104.9598,39.762],[-104.9594,39.7729],[-104.9406,39.7729],[-104.9406,39.762]]],"c":[-104.9501,39.7674]}};
 
 // =============== GEOMETRIC SUBURB SHAPES ([lat,lng], approximate) ===============
-const SUBGEO={'Old Town Louisville':[[39.985,-105.14],[39.985,-105.122],[39.97,-105.122],[39.97,-105.14]],'Old Town Lafayette':[[40.003,-105.1],[40.003,-105.08],[39.988,-105.08],[39.988,-105.1]],'South Boulder (Table Mesa / Martin Acres)':[[40.0,-105.27],[40.0,-105.23],[39.975,-105.23],[39.975,-105.27]],'Niwot':[[40.105,-105.18],[40.105,-105.155],[40.088,-105.155],[40.088,-105.18]],'Superior':[[39.952,-105.17],[39.952,-105.15],[39.935,-105.15],[39.935,-105.17]],'Holly Hills / Holly Ridge':[[39.6785,-104.94],[39.6785,-104.916],[39.653,-104.916],[39.653,-104.94]],'Cherry Hills Village':[[39.653,-104.965],[39.653,-104.925],[39.6247,-104.925],[39.6247,-104.965]],'Greenwood Village (west)':[[39.6247,-104.945],[39.6247,-104.885],[39.5947,-104.885],[39.5947,-104.945]],'Homestead / Willow Creek (Centennial)':[[39.5947,-104.93],[39.5947,-104.895],[39.579,-104.895],[39.579,-104.93]],'Southglenn / West Centennial':[[39.61,-104.98],[39.61,-104.945],[39.583,-104.945],[39.583,-104.98]],'Old Littleton (downtown grid)':[[39.62,-105.03],[39.62,-105.005],[39.6,-105.005],[39.6,-105.03]],'Golden (downtown / north + Applewood Mesa)':[[39.775,-105.245],[39.775,-105.205],[39.74,-105.205],[39.74,-105.245]],'Olde Town Arvada':[[39.812,-105.095],[39.812,-105.07],[39.795,-105.07],[39.795,-105.095]],'West Arvada (Ralston Valley feeder)':[[39.85,-105.19],[39.85,-105.13],[39.82,-105.13],[39.82,-105.19]],'East Wheat Ridge / Applewood':[[39.79,-105.14],[39.79,-105.08],[39.76,-105.08],[39.76,-105.14]],'Evergreen':[[39.65,-105.345],[39.65,-105.3],[39.615,-105.3],[39.615,-105.345]],'Highlands Ranch':[[39.56,-105.01],[39.56,-104.93],[39.52,-104.93],[39.52,-105.01]],'Spanish Hills / Paragon Estates':[[39.988,-105.205],[39.988,-105.16],[39.958,-105.16],[39.958,-105.205]],'Berkley / North Newton (current home)':[[39.809,-105.053],[39.809,-105.025],[39.7925,-105.025],[39.7925,-105.053]],'Edgewater':[[39.758,-105.071],[39.758,-105.0535],[39.742,-105.0535],[39.742,-105.071]],'Mountair / 40 West (NE Lakewood)':[[39.758,-105.0814],[39.758,-105.071],[39.7402,-105.071],[39.7402,-105.0814]],'Morse Park (Lakewood / Crown Hill)':[[39.758,-105.1099],[39.758,-105.0814],[39.7402,-105.0814],[39.7402,-105.1099]]};
-const SUBB={'Old Town Louisville':'South Boulder Rd–Pine St / CO-42–Main St grid','Old Town Lafayette':'Public Rd corridor, Emma St–Baseline Rd','South Boulder (Table Mesa / Martin Acres)':'Table Mesa Dr–Baseline Rd / Broadway–Foothills Pkwy','Niwot':'Niwot Rd at the Diagonal (CO-119)','Superior':'Original Town grid at Coal Creek','Holly Hills / Holly Ridge':'Yale–Hampden / Colorado Blvd–Holly St','Cherry Hills Village':'Hampden–Belleview / University–Dahlia','Greenwood Village (west)':'Belleview–Arapahoe / Dahlia–I-25','Homestead / Willow Creek (Centennial)':'Arapahoe–Dry Creek / Holly–Quebec','Southglenn / West Centennial':'Easter–Arapahoe / Broadway–University','Old Littleton (downtown grid)':'Downtown grid: Bowles–Ridge Rd / Platte–Broadway','Golden (downtown / north + Applewood Mesa)':'Clear Creek valley: US-6–CO-93','Olde Town Arvada':'Ralston Rd–W 52nd / Carr–Wadsworth Bypass','West Arvada (Ralston Valley feeder)':'Leyden–Candelas: W 72nd–W 86th / Indiana–Kipling','East Wheat Ridge / Applewood':'26th–44th / Youngfield–Wadsworth (Applewood side)','Evergreen':'Evergreen Lake / downtown, CO-74 corridor','Highlands Ranch':'C-470–Wildcat Reserve / Santa Fe–Quebec','Spanish Hills / Paragon Estates':'Marshall Rd\u2013South Boulder Rd / Cherryvale\u201376th','Berkley / North Newton (current home)':'53rd\u201362nd / Sheridan\u2013Federal (Berkley CDP)','Edgewater':'20th\u201326th / Sheridan\u2013Harlan (city of Edgewater)','Mountair / 40 West (NE Lakewood)':'Colfax\u201326th / Harlan\u2013Wadsworth','Morse Park (Lakewood / Crown Hill)':'Colfax\u201326th / Wadsworth\u2013Kipling'};
+const SUBGEO={'Old Town Louisville':[[39.985,-105.14],[39.985,-105.122],[39.97,-105.122],[39.97,-105.14]],'Old Town Lafayette':[[40.003,-105.1],[40.003,-105.08],[39.988,-105.08],[39.988,-105.1]],'South Boulder (Table Mesa / Martin Acres)':[[40.0,-105.27],[40.0,-105.23],[39.975,-105.23],[39.975,-105.27]],'Niwot':[[40.105,-105.18],[40.105,-105.155],[40.088,-105.155],[40.088,-105.18]],'Superior':[[39.952,-105.17],[39.952,-105.15],[39.935,-105.15],[39.935,-105.17]],'Holly Hills / Holly Ridge':[[39.6785,-104.94],[39.6785,-104.916],[39.653,-104.916],[39.653,-104.94]],'Cherry Hills Village':[[39.653,-104.965],[39.653,-104.925],[39.6247,-104.925],[39.6247,-104.965]],'Greenwood Village (west)':[[39.6247,-104.945],[39.6247,-104.885],[39.5947,-104.885],[39.5947,-104.945]],'Homestead / Willow Creek (Centennial)':[[39.5947,-104.93],[39.5947,-104.895],[39.579,-104.895],[39.579,-104.93]],'Southglenn / West Centennial':[[39.61,-104.98],[39.61,-104.945],[39.583,-104.945],[39.583,-104.98]],'Old Littleton (downtown grid)':[[39.62,-105.03],[39.62,-105.005],[39.6,-105.005],[39.6,-105.03]],'Golden (downtown / north + Applewood Mesa)':[[39.775,-105.245],[39.775,-105.205],[39.74,-105.205],[39.74,-105.245]],'Olde Town Arvada':[[39.812,-105.095],[39.812,-105.07],[39.795,-105.07],[39.795,-105.095]],'West Arvada (Ralston Valley feeder)':[[39.85,-105.19],[39.85,-105.13],[39.82,-105.13],[39.82,-105.19]],'East Wheat Ridge / Applewood':[[39.79,-105.14],[39.79,-105.08],[39.76,-105.08],[39.76,-105.14]],'Evergreen':[[39.65,-105.345],[39.65,-105.3],[39.615,-105.3],[39.615,-105.345]],'Highlands Ranch':[[39.56,-105.01],[39.56,-104.93],[39.52,-104.93],[39.52,-105.01]],'Spanish Hills / Paragon Estates':[[39.988,-105.205],[39.988,-105.16],[39.958,-105.16],[39.958,-105.205]],'Berkley / North Newton':[[39.809,-105.053],[39.809,-105.025],[39.7925,-105.025],[39.7925,-105.053]],'Edgewater':[[39.758,-105.071],[39.758,-105.0535],[39.742,-105.0535],[39.742,-105.071]],'Mountair / 40 West (NE Lakewood)':[[39.758,-105.0814],[39.758,-105.071],[39.7402,-105.071],[39.7402,-105.0814]],'Morse Park (Lakewood / Crown Hill)':[[39.758,-105.1099],[39.758,-105.0814],[39.7402,-105.0814],[39.7402,-105.1099]]};
+const SUBB={'Old Town Louisville':'South Boulder Rd–Pine St / CO-42–Main St grid','Old Town Lafayette':'Public Rd corridor, Emma St–Baseline Rd','South Boulder (Table Mesa / Martin Acres)':'Table Mesa Dr–Baseline Rd / Broadway–Foothills Pkwy','Niwot':'Niwot Rd at the Diagonal (CO-119)','Superior':'Original Town grid at Coal Creek','Holly Hills / Holly Ridge':'Yale–Hampden / Colorado Blvd–Holly St','Cherry Hills Village':'Hampden–Belleview / University–Dahlia','Greenwood Village (west)':'Belleview–Arapahoe / Dahlia–I-25','Homestead / Willow Creek (Centennial)':'Arapahoe–Dry Creek / Holly–Quebec','Southglenn / West Centennial':'Easter–Arapahoe / Broadway–University','Old Littleton (downtown grid)':'Downtown grid: Bowles–Ridge Rd / Platte–Broadway','Golden (downtown / north + Applewood Mesa)':'Clear Creek valley: US-6–CO-93','Olde Town Arvada':'Ralston Rd–W 52nd / Carr–Wadsworth Bypass','West Arvada (Ralston Valley feeder)':'Leyden–Candelas: W 72nd–W 86th / Indiana–Kipling','East Wheat Ridge / Applewood':'26th–44th / Youngfield–Wadsworth (Applewood side)','Evergreen':'Evergreen Lake / downtown, CO-74 corridor','Highlands Ranch':'C-470–Wildcat Reserve / Santa Fe–Quebec','Spanish Hills / Paragon Estates':'Marshall Rd\u2013South Boulder Rd / Cherryvale\u201376th','Berkley / North Newton':'53rd\u201362nd / Sheridan\u2013Federal (Berkley CDP)','Edgewater':'20th\u201326th / Sheridan\u2013Harlan (city of Edgewater)','Mountair / 40 West (NE Lakewood)':'Colfax\u201326th / Harlan\u2013Wadsworth','Morse Park (Lakewood / Crown Hill)':'Colfax\u201326th / Wadsworth\u2013Kipling'};
 
 // =============== STYLIZED REAL GEOGRAPHY ===============
 const HWYS=[
@@ -447,7 +465,7 @@ const CITY_LABELS=[
  {n:'ARVADA', ll:[39.80,-105.09]},
 ];
 
-// (stylized basemap removed in v4.5 — the Map tab uses real tiles)
+// (stylized basemap removed in v4.9 — the Map tab uses real tiles)
 
 // hood boundary as SVG path string (real rings or geometric suburb shape)
 function hoodPath(name){
@@ -485,7 +503,7 @@ const CRITERIA=[
  {key:'hazard',label:'Hazard risk & insurability',short:'RSK'},
 ];
 const PRESETS={
- nicky:{schools:10,alt:4,food:8,dine:5,character:6,turnkey:1,lot:6,hoa:8,nature:4,mountains:5,value:6,proximity:4,airport:2,safety:6,hazard:5},
+ default:{schools:10,alt:4,food:8,dine:5,character:6,turnkey:1,lot:6,hoa:8,nature:4,mountains:5,value:6,proximity:4,airport:2,safety:6,hazard:5},
  equal:{schools:6,alt:6,food:6,dine:6,character:6,turnkey:6,lot:6,hoa:6,nature:6,mountains:6,value:6,proximity:6,airport:6,safety:6,hazard:6},
  value:{schools:8,alt:4,food:6,dine:5,character:4,turnkey:3,lot:4,hoa:6,nature:4,mountains:3,value:10,proximity:4,airport:2,safety:6,hazard:6},
  build:{schools:6,alt:2,food:4,dine:5,character:4,turnkey:1,lot:10,hoa:10,nature:8,mountains:6,value:6,proximity:4,airport:1,safety:5,hazard:4},
@@ -505,7 +523,7 @@ function computeDerived(){
     h.s.airport=Math.max(1,Math.min(10,Math.round(11-kmTo(h,DIA)/5)));
   });
 }
-let weights={...PRESETS.nicky};
+let weights={...PRESETS.default};
 const GROUP_COLOR={dps:'var(--red)',bvsv:'var(--blue)',cherry:'var(--yellow)',other:'var(--green)'};
 const COST_CLASS={in:'cost-low',stretch:'cost-mid',over:'cost-high'};
 
@@ -527,8 +545,8 @@ const HOODS=[
  {name:'Park Hill (south / central)',district:'Denver Public Schools',group:'dps',hs:'East (McAuliffe zone)',price:'$800K–1.5M',budget:'in',hoaHeavy:false,lat:39.745,lng:-104.925,note:'Gorgeous old blocks; Graland, Stanley BPS, Logan, and Odyssey all in a tight radius.',s:{schools:6,food:5,dine:8,lot:6,character:9,hoa:10,value:6,proximity:8,nature:6,alt:8,turnkey:3,mountains:4,safety:6,hazard:7}},
  {name:'Hilltop / Crestmoor',district:'Denver Public Schools',group:'dps',hs:'GW IB / East (via Carson/Steck)',price:'$1.3M–2.5M',budget:'stretch',hoaHeavy:false,lat:39.72,lng:-104.93,note:'The big-lot DPS play; Graland is literally in the neighborhood.',s:{schools:7,food:5,dine:8,lot:7,character:7,hoa:10,value:3,proximity:8,nature:5,alt:9,turnkey:6,mountains:4,safety:8,hazard:7}},
  {name:'Country Club / Cherry Creek North',district:'Denver Public Schools',group:'dps',hs:'East (via Bromwell)',price:'$1.5M–3M',budget:'over',hoaHeavy:false,lat:39.72,lng:-104.965,note:'Bromwell \u2192 Morey \u2192 East guaranteed, in Denver\u2019s most beautiful (and priciest) old blocks.',s:{schools:7,food:8,dine:9,lot:6,character:10,hoa:10,value:2,proximity:9,nature:6,alt:8,turnkey:5,mountains:4,safety:7,hazard:7}},
- {name:'Berkeley / Regis (south of 52nd)',district:'Denver Public Schools',group:'dps',hs:'North (via Edison)',price:'$700K–1.1M',budget:'in',hoaHeavy:false,lat:39.785,lng:-105.045,note:'Ten blocks from your current life = a guaranteed Edison seat. Lowest-friction move on the board.',s:{schools:7,food:9,dine:9,lot:4,character:8,hoa:10,value:5,proximity:8,nature:6,alt:6,turnkey:5,mountains:6,safety:6,hazard:7}},
- {name:'West Highland / Sloan\u2019s Lake',district:'Denver Public Schools',group:'dps',hs:'North (via Brown Int\u2019l)',price:'$850K–1.5M',budget:'in',hoaHeavy:false,lat:39.762,lng:-105.04,note:'Your side of town, peak food-and-coffee density; North HS on a genuine upswing.',s:{schools:6,food:9,dine:9,lot:4,character:8,hoa:10,value:4,proximity:9,nature:7,alt:6,turnkey:5,mountains:6,safety:7,hazard:7}},
+ {name:'Berkeley / Regis (south of 52nd)',district:'Denver Public Schools',group:'dps',hs:'North (via Edison)',price:'$700K–1.1M',budget:'in',hoaHeavy:false,lat:39.785,lng:-105.045,note:'Guaranteed Edison seat feeding North HS, with the Tennyson Street strip anchoring one of NW Denver’s best food-and-shop runs.',s:{schools:7,food:9,dine:9,lot:4,character:8,hoa:10,value:5,proximity:8,nature:6,alt:6,turnkey:5,mountains:6,safety:6,hazard:7}},
+ {name:'West Highland / Sloan\u2019s Lake',district:'Denver Public Schools',group:'dps',hs:'North (via Brown Int\u2019l)',price:'$850K–1.5M',budget:'in',hoaHeavy:false,lat:39.762,lng:-105.04,note:'Peak food-and-coffee density on the northwest side; North HS on a genuine upswing.',s:{schools:6,food:9,dine:9,lot:4,character:8,hoa:10,value:4,proximity:9,nature:7,alt:6,turnkey:5,mountains:6,safety:7,hazard:7}},
  {name:'Central Park (fka Stapleton)',district:'Denver Public Schools',group:'dps',hs:'Northfield HS',price:'$750K–1.2M',budget:'in',hoaHeavy:true,lat:39.76,lng:-104.885,note:'Strong zone schools, DSST flagship nearby — but mandatory MCA fees and zero old-home character.',s:{schools:7,food:6,dine:7,lot:3,character:2,hoa:2,value:6,proximity:7,nature:6,alt:9,turnkey:10,mountains:3,safety:7,hazard:7}},
  {name:'Curtis Park / RiNo / Cole',district:'Denver Public Schools',group:'dps',hs:'East (Greater Five Points zone)',price:'$600K–1.4M',budget:'in',hoaHeavy:false,lat:39.758,lng:-104.975,note:'Victorian Curtis Park against the RiNo arts-and-breweries corridor \u2014 the state\u2019s best food-and-energy density, new townhomes among the row houses. The Greater Five Points enrollment zone is the tradeoff; DSST and Polaris priority are the education play.',s:{schools:3,food:10,dine:10,lot:3,character:9,hoa:10,value:7,proximity:10,nature:3,alt:6,turnkey:6,mountains:5,safety:3,hazard:7}},
  {name:'Old Littleton (downtown grid)',district:'Littleton Public Schools',group:'other',hs:'Littleton HS',price:'$650K–1.1M',budget:'in',hoaHeavy:false,lat:39.613,lng:-105.015,note:'The sleeper: excellent small district, walkable Main Street, old homes, metro-median prices.',s:{schools:8,food:7,dine:7,lot:6,character:8,hoa:9,value:8,proximity:5,nature:7,alt:8,turnkey:4,mountains:6,safety:7,hazard:7}},
@@ -536,11 +554,11 @@ const HOODS=[
  {name:'Golden (downtown / north + Applewood Mesa)',district:'Jeffco Public Schools',group:'other',hs:'Golden HS',price:'$800K–1.5M',budget:'in',hoaHeavy:false,lat:39.755,lng:-105.221,note:'Best views-per-walkability in the metro; Compass Montessori\u2019s farm school is here.',s:{schools:7,food:7,dine:7,lot:7,character:8,hoa:8,value:5,proximity:5,nature:9,alt:7,turnkey:4,mountains:10,safety:8,hazard:5}},
  {name:'Olde Town Arvada',district:'Jeffco Public Schools',group:'other',hs:'Arvada / Ralston Valley (varies)',price:'$600K–1.0M',budget:'in',hoaHeavy:false,lat:39.80,lng:-105.08,note:'Walkable historic core with breweries and G-Line rail; school strength swings by feeder.',s:{schools:6,food:7,dine:7,lot:5,character:8,hoa:9,value:7,proximity:6,nature:5,alt:6,turnkey:4,mountains:7,safety:6,hazard:7}},
  {name:'West Arvada (Ralston Valley feeder)',district:'Jeffco Public Schools',group:'other',hs:'Ralston Valley HS',price:'$700K–1.1M',budget:'in',hoaHeavy:true,lat:39.83,lng:-105.15,note:'One of Jeffco\u2019s strongest high schools; newer stock, HOAs common, character thin.',s:{schools:7,food:3,dine:5,lot:8,character:2,hoa:3,value:7,proximity:4,nature:7,alt:6,turnkey:8,mountains:8,safety:9,hazard:6}},
- {name:'East Wheat Ridge / Applewood',district:'Jeffco Public Schools',group:'other',hs:'Wheat Ridge / Golden (varies)',price:'$650K–1.2M',budget:'in',hoaHeavy:false,lat:39.77,lng:-105.11,note:'Your original instinct: the metro\u2019s best lots, no HOAs — and Mountain Phoenix + Compass patch the school gap.',s:{schools:4,food:5,dine:8,lot:9,character:5,hoa:9,value:8,proximity:6,nature:6,alt:7,turnkey:4,mountains:8,safety:6,hazard:7}},
+ {name:'East Wheat Ridge / Applewood',district:'Jeffco Public Schools',group:'other',hs:'Wheat Ridge / Golden (varies)',price:'$650K–1.2M',budget:'in',hoaHeavy:false,lat:39.77,lng:-105.11,note:'Some of the metro\u2019s best lots, no HOAs — and Mountain Phoenix + Compass patch the school gap.',s:{schools:4,food:5,dine:8,lot:9,character:5,hoa:9,value:8,proximity:6,nature:6,alt:7,turnkey:4,mountains:8,safety:6,hazard:7}},
  {name:'Evergreen',district:'Jeffco Public Schools',group:'other',hs:'Evergreen HS',price:'$900K–1.7M',budget:'in',hoaHeavy:false,lat:39.633,lng:-105.32,note:'Acreage, elk, and a top-15 Colorado high school; winter driving and distance are real costs.',s:{schools:7,food:5,dine:5,lot:10,character:7,hoa:8,value:6,proximity:3,nature:10,alt:4,turnkey:5,mountains:10,safety:9,hazard:2}},
  {name:'Highlands Ranch',district:'Douglas County SD',group:'other',hs:'Mountain Vista / Rock Canyon',price:'$650K–1.1M',budget:'in',hoaHeavy:true,lat:39.54,lng:-104.97,note:'Great schools, sane prices — and a mandatory HOA on essentially every parcel.',s:{schools:8,food:3,dine:6,lot:4,character:2,hoa:1,value:7,proximity:4,nature:6,alt:8,turnkey:8,mountains:6,safety:10,hazard:6}},
  {name:'Spanish Hills / Paragon Estates',district:'BVSD (unincorp. Boulder County)',group:'bvsv',hs:'Centaurus HS (IB)',price:'$1.4\u20133M+',budget:'stretch',hoaHeavy:false,lat:39.972,lng:-105.183,note:'The land champion: 1\u20132+ acre mesa lots ringed by permanent open space, Flatirons views, five minutes to both Boulder and Louisville Main St. The Douglass\u2192Platt\u2192Centaurus (IB) chain is the asterisk; the Marshall Fire wind corridor is the risk \u2014 and the rebuilt lots are the rare new-construction opening.',s:{schools:6,food:3,dine:7,lot:10,character:6,hoa:9,value:3,proximity:3,nature:9,alt:9,turnkey:6,mountains:8,safety:10,hazard:3}},
- {name:'Berkley / North Newton (current home)',personal:true,district:'Westminster Public Schools',group:'other',hs:'Westminster HS',price:'$450\u2013650K',budget:'in',hoaHeavy:false,lat:39.7955,lng:-105.039,note:'Home turf, mapped honestly: unincorporated Adams value with a quick shot downtown \u2014 and a guaranteed WPS chain back on the state accountability clock, which is the reason this whole search exists.',s:{schools:2,food:4,dine:8,lot:6,character:5,hoa:10,value:9,proximity:8,nature:5,alt:5,turnkey:3,mountains:6,safety:4,hazard:7}},
+ {name:'Berkley / North Newton',district:'Westminster Public Schools',group:'other',hs:'Westminster HS',price:'$450\u2013650K',budget:'in',hoaHeavy:false,lat:39.7955,lng:-105.039,note:'Unincorporated Adams value with a quick shot downtown \u2014 but the assigned Westminster chain sits on the state accountability clock.',s:{schools:2,food:4,dine:8,lot:6,character:5,hoa:10,value:9,proximity:8,nature:5,alt:5,turnkey:3,mountains:6,safety:4,hazard:7}},
  {name:'Edgewater',district:'Jeffco',group:'other',hs:'Jefferson Jr/Sr HS',price:'$550\u2013800K',budget:'in',hoaHeavy:false,lat:39.75,lng:-105.062,note:'A one-square-mile city with outsized walkability: Edgewater Public Market, the 25th Ave strip, and Sloan\u2019s Lake across Sheridan. Jefferson Jr/Sr anchors one of Jeffco\u2019s weakest guaranteed chains \u2014 this is pure option-school and private territory.',s:{schools:3,food:8,dine:9,lot:3,character:6,hoa:10,value:6,proximity:9,nature:7,alt:5,turnkey:4,mountains:6,safety:5,hazard:7}},
  {name:'Mountair / 40 West (NE Lakewood)',district:'Jeffco',group:'other',hs:'Jefferson Jr/Sr HS',price:'$450\u2013700K',budget:'in',hoaHeavy:false,lat:39.748,lng:-105.076,note:'The 40 West Arts corridor band between Colfax and 26th: cheap-for-location bungalows riding Edgewater\u2019s spillover, with Two Creeks just south. Same Jefferson-chain caveat as its neighbor.',s:{schools:3,food:5,dine:8,lot:5,character:5,hoa:10,value:8,proximity:8,nature:6,alt:6,turnkey:3,mountains:7,safety:4,hazard:7}},
  {name:'Morse Park (Lakewood / Crown Hill)',district:'Jeffco',group:'other',hs:'Jefferson or Wheat Ridge HS (address-dependent)',price:'$500\u2013750K',budget:'in',hoaHeavy:false,lat:39.749,lng:-105.095,note:'Bigger 1950s\u201360s lots against Crown Hill Park\u2019s 242 acres and the lake \u2014 the quiet-value version of NW-adjacent living. The guaranteed chain is address-dependent and weak either way; Dennison (application) is the local patch.',s:{schools:3,food:4,dine:7,lot:7,character:4,hoa:9,value:8,proximity:7,nature:7,alt:6,turnkey:3,mountains:8,safety:6,hazard:7}},
@@ -562,7 +580,7 @@ const SCHOOLS=[
  {name:'Kent Denver',type:'private',grades:'6\u201312',levels:['M','H'],area:'Cherry Hills Village',access:'Tuition (~$43K)',url:'https://www.kentdenver.org',lat:39.64,lng:-104.938,blurb:'Colorado\u2019s #1 private HS: 200-acre campus, 8:1, the benchmark school.'},
  {name:'D\u2019Evelyn Jr/Sr',type:'public',grades:'6\u201312',levels:['M','H'],area:'Jeffco (SW Lakewood)',access:'Application (Jeffco option)',url:'https://develyn.jeffcopublicschools.org',lat:39.65,lng:-105.113,blurb:'Ranked #1 HS in Colorado; traditional liberal-arts rigor, no boundary.'},
  {name:'Colorado Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'SW Denver',access:'Tuition (~$35K)',url:'https://www.coloradoacademy.org',lat:39.649,lng:-105.08,blurb:'The premier PK\u201312 independent: 94 acres, the full-arc alternative to Graland\u2192Kent.'},
- {name:'Fairview HS',type:'public',grades:'9\u201312',levels:['H'],area:'South Boulder',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Fairview+High+School+Boulder+BVSD',lat:39.986,lng:-105.253,blurb:'Boulder\u2019s academic flagship and your reference school.'},
+ {name:'Fairview HS',type:'public',grades:'9\u201312',levels:['H'],area:'South Boulder',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Fairview+High+School+Boulder+BVSD',lat:39.986,lng:-105.253,blurb:'Boulder\u2019s academic flagship.'},
  {name:'Cherry Creek HS',type:'public',grades:'9\u201312',levels:['H'],area:'Greenwood Village',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Cherry+Creek+High+School+official+site',lat:39.619,lng:-104.934,blurb:'The metro\u2019s most famous public HS; obtainable at three price tiers.'},
  {name:'Graland Country Day',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Hilltop',access:'Tuition ($31\u201339K)',url:'https://www.graland.org',lat:39.715,lng:-104.933,blurb:'Denver\u2019s premier K\u20138; experiential trips woven into the program, 7:1.'},
  {name:'Stargate School',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Thornton (Adams 12)',access:'Gifted ID + lottery',url:'https://www.stargateschool.org',lat:39.913,lng:-104.955,blurb:'Ranked #4 in Colorado; the north metro\u2019s gifted anchor.'},
@@ -628,7 +646,15 @@ const TYPE_CHIP={private:'t-private',public:'t-public',charter:'t-charter'};
 const TYPE_COLOR={private:'var(--red)',public:'var(--blue)',charter:'var(--green)'};
 
 // =============== SCORING ===============
-function scoreOf(h){let n=0,d=0;CRITERIA.forEach(c=>{n+=h.s[c.key]*weights[c.key];d+=weights[c.key];});return d===0?0:n/d;}
+let schoolTypes={public:true,charter:true,private:true}; // top-bar checkboxes
+const activeTypes=()=>['public','charter','private'].filter(t=>schoolTypes[t]);
+const modeAllows=s=>!!schoolTypes[s.type];
+const effWeight=k=>{
+  if(k==='schools'&&!schoolTypes.public)return 0;                    // no public → assigned school moot
+  if(k==='alt'&&!schoolTypes.charter&&!schoolTypes.private)return 0; // no charter/private → alt access moot
+  return weights[k];
+};
+function scoreOf(h){let n=0,d=0;CRITERIA.forEach(c=>{n+=h.s[c.key]*effWeight(c.key);d+=effWeight(c.key);});return d===0?0:n/d;}
 function rankedHoods(){return HOODS.map(h=>({h,score:scoreOf(h)})).sort((a,b)=>b.score-a.score);}
 
 // =============== TABS ===============
@@ -655,7 +681,7 @@ function renderSliders(){
   slidersEl.querySelectorAll('.crit-toggle').forEach(t=>t.addEventListener('click',()=>{
     const k=t.dataset.tkey;
     if(weights[k]>0){lastW[k]=weights[k];weights[k]=0;}
-    else{weights[k]=lastW[k]||PRESETS.nicky[k]||5;}
+    else{weights[k]=lastW[k]||PRESETS.default[k]||5;}
     setPersona('Custom');syncHash();renderSliders();renderHoods();renderMapMarkers();
   }));
   slidersEl.querySelectorAll('input[type=range]').forEach(inp=>inp.addEventListener('input',e=>{
@@ -689,7 +715,7 @@ function wheelSVG(h){
   const P=(a,r)=>[CX+r*Math.cos(a*Math.PI/180),CY+r*Math.sin(a*Math.PI/180)];
   let wedges='',grid='',labels='';
   WHEEL_ORDER.forEach((key,i)=>{
-    const c=CMAP[key], v=h.s[key], off=weights[key]===0;
+    const c=CMAP[key], v=h.s[key], off=effWeight(key)===0;
     const a0=-90+i*SW, a1=-90+(i+1)*SW;
     const r1=R0+(RMAX-R0)*v/10;
     const [ax,ay]=P(a0,r1),[bx,by]=P(a1,r1),[cx2,cy2]=P(a1,R0),[dx,dy]=P(a0,R0);
@@ -712,11 +738,21 @@ function distMi(aLat,aLng,bLat,bLng){
   return km*0.62137;
 }
 function hoodExpansion(h){
-  const withD=SCHOOLS.map((s,i)=>({s,i,d:distMi(h.lat,h.lng,s.lat,s.lng)}));
+  const withD=SCHOOLS.map((s,i)=>({s,i,d:distMi(h.lat,h.lng,s.lat,s.lng)})).filter(x=>modeAllows(x.s));
   let near=withD.filter(x=>x.d<=3.0);
   let fallback=false;
-  if(near.length<3){ fallback=true; near=withD.sort((a,b)=>a.d-b.d).slice(0,3); }
+  if(near.length<3){ fallback=true; near=[...withD].sort((a,b)=>a.d-b.d).slice(0,3); }
   near.sort((a,b)=>a.i-b.i);
+  const pathRows=[['E','Elementary'],['M','Middle'],['H','High']].map(([lvl,lname])=>{
+    const cand=withD.filter(x=>x.s.levels.includes(lvl));
+    if(!cand.length)return `<div class="ex-srow"><span class="ex-lvl">${lname}</span><span class="ex-sname">No matching school listed</span></div>`;
+    const inReach=cand.filter(x=>x.d<=3.0).sort((a,b)=>a.i-b.i);
+    const pick=inReach[0]||[...cand].sort((a,b)=>a.d-b.d)[0];
+    return `<div class="ex-srow"><span class="ex-lvl">${lname}</span><span class="ex-rank">#${pick.i+1}</span><span class="ex-sname">${pick.s.name}</span>
+      <span class="chip ${TYPE_CHIP[pick.s.type]}">${TYPE_LABEL[pick.s.type]}</span><span class="chip">${pick.s.grades}</span>
+      <span class="ex-dist">${pick.d.toFixed(1)} mi</span>${locateBtn('school',pick.s.name,pick.s.lat,pick.s.lng)}
+      <a class="site-link" href="${pick.s.url}" target="_blank" rel="noopener">Website ↗</a></div>`;
+  }).join('');
   const vals=CRITERIA.map(c=>({label:c.label,v:h.s[c.key]}));
   const pros=[...vals].sort((a,b)=>b.v-a.v).slice(0,3);
   const cons=[...vals].sort((a,b)=>a.v-b.v).slice(0,3);
@@ -731,8 +767,25 @@ function hoodExpansion(h){
       <span><span class="ex-tag pro">Strongest</span>${pros.map(p=>`${p.label} <b>${p.v}</b>`).join(' \u00b7 ')}</span>
       <span><span class="ex-tag con">Tradeoffs</span>${cons.map(p=>`${p.label} <b>${p.v}</b>`).join(' \u00b7 ')}</span>
     </div>
+    <div class="ex-shead">Ideal school path \u00b7 top composite pick per level (within 3 mi, else nearest)${activeTypes().length===3?'':' \u00b7 '+(activeTypes().join(' + ')||'no types selected')}</div>
+    <div class="ex-path">${pathRows}</div>
     <div class="ex-shead">${fallback?'No listed schools within 3 mi \u2014 nearest three':'Listed schools within 3 mi'} \u00b7 # = composite rank</div>
     ${rows}</div>`;
+}
+function hoodCardHTML(h,rank,score){
+  return `<div class="rank">${rank}</div>
+    <div class="body">
+      <div class="name-row"><span class="name">${h.name}</span>
+        <span class="chip"><span class="dsq" style="background:${GROUP_COLOR[h.group]}"></span>${h.district}</span>
+        <span class="chip ${COST_CLASS[h.budget]}">${h.price}</span>
+        ${h.hoaHeavy?'<span class="chip hoa">HOA-heavy</span>':''}<span class="exp-hint">▾ schools &amp; take</span></div>
+      <div class="meta"><span>Guaranteed HS: <b>${h.hs}</b></span></div>
+      <div class="note">${h.note}</div>
+    </div>
+    <div class="wheel">${wheelSVG(h)}</div>
+    <div class="side"><span class="score">${score.toFixed(2)}</span><span class="score-label">Live score</span>
+      ${locateBtn('hood',h.name,h.lat,h.lng)}</div>
+    ${hoodExpansion(h)}`;
 }
 function renderHoods(){
   const hideBudget=document.getElementById('fBudget').checked;
@@ -740,26 +793,12 @@ function renderHoods(){
   const dimMode=document.getElementById('fDim').checked;
   hoodListEl.innerHTML='';let shown=0,rank=0;
   rankedHoods().forEach(({h,score})=>{
-    if(h.personal&&!showPersonal)return;
     const excluded=(hideBudget&&h.budget==='over')||(hideHoa&&h.hoaHeavy);
     if(excluded&&!dimMode)return;
     rank++;shown++;
     const card=document.createElement('article');
     card.className='card hcard'+(rank<=3&&!excluded?' top3':'')+(excluded?' dimmed':'');
-    const wheel=wheelSVG(h);
-    card.innerHTML=`<div class="rank">${rank}</div>
-      <div class="body">
-        <div class="name-row"><span class="name">${h.name}</span>
-          <span class="chip"><span class="dsq" style="background:${GROUP_COLOR[h.group]}"></span>${h.district}</span>
-          <span class="chip ${COST_CLASS[h.budget]}">${h.price}</span>
-          ${h.hoaHeavy?'<span class="chip hoa">HOA-heavy</span>':''}<span class="exp-hint">\u25be schools &amp; take</span></div>
-        <div class="meta"><span>Guaranteed HS: <b>${h.hs}</b></span></div>
-        <div class="note">${h.note}</div>
-      </div>
-      <div class="wheel">${wheel}</div>
-      <div class="side"><span class="score">${score.toFixed(2)}</span><span class="score-label">Live score</span>
-        ${locateBtn('hood',h.name,h.lat,h.lng)}</div>
-      ${hoodExpansion(h)}`;
+    card.innerHTML=hoodCardHTML(h,rank,score);
     card.addEventListener('click',e=>{
       if(e.target.closest('a,button,input'))return;
       const was=card.classList.contains('open');
@@ -787,6 +826,7 @@ const LVL_NAME={all:'',E:'elementary ',M:'middle ',H:'high '};
 function renderSchools(){
   const el=document.getElementById('schoolList');el.innerHTML='';
   const filtered=SCHOOLS.filter(s=>{
+    if(!modeAllows(s))return false;
     const isPublic=s.type!=='private';
     if(segMode==='public'&&!isPublic)return false;
     if(segMode==='private'&&isPublic)return false;
@@ -808,12 +848,13 @@ function renderSchools(){
         <a class="site-link" href="${s.url}" target="_blank" rel="noopener">Website \u2197</a></div>`;
     el.appendChild(card);
   });
-  const typeName=segMode==='all'?'':segMode+' ';
+  const act=activeTypes();
+  const typeName=act.length<3?(act.join(' + ')||'no')+' ':(segMode==='all'?'':segMode+' ');
   document.getElementById('schoolCount').textContent=`Top ${filtered.length} ${typeName}${LVL_NAME[lvlMode]}schools \u00b7 rank = position within this view \u00b7 composite ordering`;
 }
 
 // =============== TAB 3: REAL MAP (Leaflet) ===============
-let LMAP=null, hoodLayer=null, chipLayer=null, schoolLayer=null;
+let LMAP=null, hoodLayer=null, chipLayer=null, schoolLayer=null, lastDetail=null;
 function ensureMap(){
   if(LMAP) return;
   LMAP=L.map('lmap',{scrollWheelZoom:true}).setView([39.75,-105.02],10);
@@ -829,7 +870,6 @@ const TYPE_HEX={private:'#C93A26',public:'#2D5D8C',charter:'#3E6B3F'};
 function drawHoodPolys(){
   hoodLayer.clearLayers();
   HOODS.forEach(h=>{
-    if(h.personal&&!showPersonal)return;
     const style={color:'#1B1710',weight:2,fillColor:GROUP_HEX[h.group],fillOpacity:.32};
     let polys=[];
     if(DENGEO[h.name]) polys=DENGEO[h.name].rings.map(r=>r.map(p=>[p[1],p[0]]));
@@ -848,7 +888,6 @@ function refreshChips(){
   if(!document.getElementById('mHoods').checked){ if(LMAP.hasLayer(hoodLayer)) LMAP.removeLayer(hoodLayer); return; }
   if(!LMAP.hasLayer(hoodLayer)) LMAP.addLayer(hoodLayer);
   rankedHoods().forEach(({h},idx)=>{
-    if(h.personal&&!showPersonal)return;
     const c=hoodCentroid(h.name,h.lat,h.lng);
     L.marker([c[0],c[1]],{icon:L.divIcon({className:'',html:`<div class="chip-ico">${idx+1}</div>`,iconSize:[26,26],iconAnchor:[13,13]}),interactive:true})
      .addTo(chipLayer).on('click',()=>renderDetail('hood',h.name));
@@ -857,6 +896,7 @@ function refreshChips(){
 function drawSchoolPins(){
   schoolLayer.clearLayers();
   SCHOOLS.forEach((s,i)=>{
+    if(!modeAllows(s))return;
     L.marker([s.lat,s.lng],{icon:L.divIcon({className:'',
       html:`<div class="pin-wrap"><div class="pin-ico" style="background:${TYPE_HEX[s.type]}"><span>${i+1}</span></div></div>`,
       iconSize:[30,40],iconAnchor:[14,34]})})
@@ -869,22 +909,22 @@ document.getElementById('mSchools').addEventListener('change',()=>{
   if(document.getElementById('mSchools').checked){ if(!LMAP.hasLayer(schoolLayer)) LMAP.addLayer(schoolLayer); }
   else if(LMAP.hasLayer(schoolLayer)) LMAP.removeLayer(schoolLayer);
 });
-function renderMapMarkers(){ if(LMAP) refreshChips(); }
+function renderMapMarkers(){ if(!LMAP) return; refreshChips(); if(lastDetail)renderDetail(lastDetail.kind,lastDetail.name); }
 function locateOnMap(kind,name,lat,lng){
   document.querySelector('.tab[data-tab="map"]').click();
   setTimeout(()=>{ LMAP.flyTo([lat,lng], kind==='school'?14:13); renderDetail(kind,name); },120);
 }
 window.locateOnMap=locateOnMap;
 function renderDetail(kind,name){
+  lastDetail={kind,name};
   const d=document.getElementById('detail');
   if(kind==='hood'){
     const ranked=rankedHoods();
     const idx=ranked.findIndex(r=>r.h.name===name);
     const {h,score}=ranked[idx];
-    d.innerHTML=`<h3>${h.name}</h3>
-      <div class="drank">Rank #${idx+1} of ${HOODS.length} \u00b7 live score ${score.toFixed(2)} under current weights</div>
-      <p>${h.note}</p><p>${CRITERIA.map(c=>`${c.short} ${h.s[c.key]}`).join(' \u00b7 ')}</p>
-      <div class="dmeta">${h.district} \u00b7 Guaranteed HS: ${h.hs}<br>Typical homes ${h.price}${h.hoaHeavy?' \u00b7 HOA-heavy':''}${SUBB[h.name]?`<br>Approx. bounds: ${SUBB[h.name]}`:'<br>Boundary: official city polygon'}</div>`;
+    d.innerHTML=`<div class="drank">Rank #${idx+1} of ${HOODS.length} \u00b7 live under current weights</div>
+      <article class="card hcard open${idx<3?' top3':''}">${hoodCardHTML(h,idx+1,score)}</article>
+      <div class="dmeta">${SUBB[h.name]?`Approx. bounds: ${SUBB[h.name]}`:'Boundary: official city polygon'}</div>`;
   }else{
     const i=SCHOOLS.findIndex(s=>s.name===name);const s=SCHOOLS[i];
     d.innerHTML=`<h3>${s.name}</h3>
@@ -901,24 +941,35 @@ document.getElementById('modalClose').addEventListener('click',()=>backdrop.clas
 backdrop.addEventListener('click',e=>{if(e.target===backdrop)backdrop.classList.remove('open');});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')backdrop.classList.remove('open');});
 // =============== SETTINGS DRAWER / SHARE ===============
-let showPersonal=true, currentPersona='Your ranking';
+let currentPersona='Schools first';
 const lastW={};
-const PRESET_NAMES={nicky:'Your ranking',equal:'Equal weights',value:'Value hunter',build:'Land & horses',urban:'Urban walkers',newbuild:'New-build turnkey',ski:'Ski weekenders'};
+const PRESET_NAMES={default:'Schools first',equal:'Equal weights',value:'Value hunter',build:'Land & horses',urban:'Urban walkers',newbuild:'New-build turnkey',ski:'Ski weekenders'};
 function openDrawer(o){document.getElementById('settingsDrawer').classList.toggle('open',o);
   document.getElementById('drawerOverlay').classList.toggle('on',o);}
 document.getElementById('openSettings').addEventListener('click',()=>openDrawer(true));
 document.getElementById('closeSettings').addEventListener('click',()=>openDrawer(false));
 document.getElementById('drawerOverlay').addEventListener('click',()=>openDrawer(false));
 document.addEventListener('keydown',e=>{if(e.key==='Escape')openDrawer(false);});
-document.getElementById('fPersonal').addEventListener('change',e=>{
-  showPersonal=e.target.checked;renderHoods();
-  if(LMAP){drawHoodPolys();refreshChips();}
-  syncHash();
-});
 function setPersona(name){currentPersona=name;document.getElementById('personaName').textContent=name;}
+function applySchoolTypes(){
+  const seg=document.getElementById('segType');
+  if(activeTypes().length<3){
+    segMode='all';
+    seg.style.display='none';
+    seg.querySelectorAll('.seg-btn').forEach(x=>x.classList.toggle('active',x.dataset.seg==='all'));
+  } else seg.style.display='';
+  document.querySelectorAll('input[name="schoolType"]').forEach(cb=>{cb.checked=!!schoolTypes[cb.value];});
+}
+document.querySelectorAll('input[name="schoolType"]').forEach(cb=>cb.addEventListener('change',()=>{
+  schoolTypes[cb.value]=cb.checked;applySchoolTypes();
+  renderSchools();renderHoods();renderMapMarkers();
+  if(LMAP)drawSchoolPins();
+  syncHash();
+}));
 function buildHash(){
   const w=CRITERIA.map(c=>weights[c.key]).join(',');
-  return '#w='+w+'&a='+commuteAnchor+'&p='+(showPersonal?1:0);
+  const act=activeTypes();
+  return '#w='+w+'&a='+commuteAnchor+(act.length===3?'':'&t='+act.join(','));
 }
 function syncHash(){
   const h=buildHash();
@@ -933,7 +984,9 @@ function applyHash(){
     if(vals.length===CRITERIA.length&&vals.every(v=>v>=0&&v<=10)){
       CRITERIA.forEach((c,i)=>weights[c.key]=vals[i]);setPersona('Shared / custom');}
     if(ANCHORS[q.a]){commuteAnchor=q.a;const sel=document.getElementById('anchorSel');if(sel)sel.value=q.a;}
-    if(q.p==='0'){showPersonal=false;const cb=document.getElementById('fPersonal');if(cb)cb.checked=false;}
+    if(q.m==='public'){schoolTypes={public:true,charter:true,private:false};applySchoolTypes();}
+    else if(q.m==='private'){schoolTypes={public:false,charter:false,private:true};applySchoolTypes();}
+    if(q.t!==undefined){const set=q.t.split(',');['public','charter','private'].forEach(t=>schoolTypes[t]=set.includes(t));applySchoolTypes();}
   }catch(e){}
 }
 function copyShare(btn){

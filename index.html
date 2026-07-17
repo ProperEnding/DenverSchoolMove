@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Next: Denver Metro — v4.23</title>
+<title>Denver, Weighted — v4.30</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -63,9 +63,13 @@
   .wb-mode input{accent-color:var(--ink);cursor:pointer;}
   #drawerOverlay{display:none;position:fixed;inset:0;background:rgba(27,23,16,.4);z-index:1200;}
   #drawerOverlay.on{display:block;}
-  #settingsDrawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,92vw);background:var(--bone);border-left:3px solid var(--ink);
+  #settingsDrawer,#schoolDrawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,92vw);background:var(--bone);border-left:3px solid var(--ink);
     z-index:1300;transform:translateX(102%);transition:transform .22s ease;overflow-y:auto;padding:0 18px 24px;box-shadow:-6px 0 0 rgba(27,23,16,.15);}
-  #settingsDrawer.open{transform:translateX(0);}
+  #settingsDrawer.open,#schoolDrawer.open{transform:translateX(0);}
+  #schoolDrawer .sw-row{flex-direction:column;align-items:stretch;border:none;box-shadow:none;margin:0;padding:0;gap:14px;}
+  #schoolDrawer .sw-row label{justify-content:space-between;}
+  #schoolDrawer .sw-row input{width:150px;}
+  #schoolDrawer .sw-note{font-size:12.5px;color:var(--ink-soft);margin:12px 0;}
   .drawer-head{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:13px;font-weight:700;
     letter-spacing:.1em;text-transform:uppercase;border-bottom:2px solid var(--ink);padding:16px 0 10px;margin-bottom:14px;background:var(--bone);position:sticky;top:0;}
   .drawer-head button{border:2px solid var(--ink);background:var(--cream);width:32px;height:32px;font-size:18px;cursor:pointer;}
@@ -95,7 +99,7 @@
   .legend .sq{display:inline-block;width:11px;height:11px;border:1.5px solid var(--ink);vertical-align:-1px;margin-right:6px;}
   .count-line{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin:4px 0 14px;}
   .list{display:flex;flex-direction:column;gap:12px;}
-  .card{background:var(--bone);border:2px solid var(--ink);display:grid;grid-template-columns:60px 1fr auto 200px;}
+  .card{background:var(--bone);border:2px solid var(--ink);display:grid;grid-template-columns:60px 1fr 160px 150px;}
   @media(hover:hover){.card:hover{box-shadow:4px 4px 0 var(--ink);transform:translate(-1px,-1px);}}
   .card .rank{display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:24px;font-weight:700;border-right:2px solid var(--ink);}
   .card.top3 .rank{background:var(--yellow);}
@@ -126,7 +130,8 @@
   .wheel .wlabel{font-family:var(--mono);font-size:6.2px;letter-spacing:.04em;fill:var(--ink-soft);}
   @media(max-width:860px){.wheel{display:none;}}
   .bar.muted{opacity:.28;}
-  .card .side{border-left:2px solid var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:10px;}
+  .card .side{border-left:2px solid var(--ink);display:flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;padding:10px;}
+  .side-main{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;}
   .card .score{font-family:var(--mono);font-size:24px;font-weight:700;}
   .card .score-label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
   .card.dimmed{opacity:.45;}
@@ -150,6 +155,7 @@
   .detail .card .exp-hint{display:none;}
   .detail .wheel{display:flex;grid-column:1/-1;border-top:2px solid var(--ink);padding:10px;}
   .detail .card .side{grid-column:1/-1;border-left:none;border-top:2px solid var(--ink);flex-direction:row;justify-content:space-between;padding:8px 12px;}
+  .detail .side-main{flex-direction:row;flex:1;justify-content:space-between;}
   .detail .drank{margin-bottom:10px;}
   .map-credit{font-family:var(--mono);font-size:10px;color:var(--ink-soft);margin-top:8px;line-height:1.6;}
   .map-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;fill:var(--ink-soft);}
@@ -214,6 +220,12 @@
   .hcard.g-cherry{--gcol:var(--yellow);}
   .hcard.g-other{--gcol:var(--green);}
   .hcard .rank{box-shadow:inset -6px 0 0 var(--gcol,transparent);}
+  .card.scard{cursor:pointer;}
+  .card.scard.open{grid-template-columns:60px 1fr 260px 150px;}
+  .s-stats{display:flex;flex-wrap:wrap;gap:6px 22px;font-family:var(--mono);font-size:10.5px;letter-spacing:.03em;margin-bottom:12px;}
+  .s-stats b{font-weight:700;}
+  .s-about{font-size:13.5px;line-height:1.55;margin-bottom:8px;max-width:78ch;}
+  .s-about:last-child{margin-bottom:0;}
   .hcard .note{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;}
   .card.open .note{display:block;-webkit-line-clamp:unset;}
   .ex-lvl{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;border:1.5px solid var(--ink);background:var(--yellow);padding:2px 6px;min-width:70px;text-align:center;}
@@ -244,10 +256,18 @@
   .locate-btn{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;
     border:1.5px solid var(--ink);background:var(--cream);padding:4px 8px;cursor:pointer;}
   @media(hover:hover){.locate-btn:hover{background:var(--yellow);}}
-  .fav-btn{font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;border:1.5px solid var(--ink);background:var(--cream);padding:3px 8px;cursor:pointer;}
-  @media(hover:hover){.fav-btn:hover{background:var(--yellow);}}
-  .fav-btn.on{background:var(--yellow);font-weight:700;}
+  .fav-btn{border:none;background:none;padding:0;font-size:19px;line-height:1;cursor:pointer;color:var(--ink);}
+  @media(hover:hover){.fav-btn:hover{transform:scale(1.2);}}
+  .fav-btn.on{color:var(--yellow);-webkit-text-stroke:1.2px var(--ink);}
   .fav-head{font-family:var(--serif);font-size:21px;margin:20px 0 10px;}
+  .search-box{font-family:var(--sans);font-size:13.5px;border:2px solid var(--ink);background:var(--cream);padding:8px 12px;width:min(360px,100%);display:block;margin-bottom:10px;}
+  .search-box:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+  .sw-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:12px;border:2px solid var(--ink);background:var(--bone);padding:10px 14px;box-shadow:3px 3px 0 var(--ink);}
+  .sw-row label{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;}
+  .sw-row input{width:88px;accent-color:var(--ink);}
+  .sw-row .swv{min-width:14px;text-align:right;}
+  .tuition-row{display:flex;align-items:center;gap:10px;margin:10px 0;font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;}
+  .tuition-row input{width:180px;accent-color:var(--ink);}
   .fav-empty{font-size:13.5px;color:var(--ink-soft);margin-bottom:14px;}
   #favTabCount{font-family:var(--mono);font-size:11px;}
   footer{margin-top:40px;padding-top:16px;border-top:3px solid var(--ink);font-family:var(--mono);font-size:11px;color:var(--ink-soft);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;}
@@ -255,6 +275,7 @@
     body{padding:0 12px 60px;}
     .card,.card.hcard{grid-template-columns:44px 1fr;}
     .card .side{grid-column:1/-1;border-left:none;border-top:2px solid var(--ink);flex-direction:row;justify-content:space-between;padding:8px 12px;}
+    .side-main{flex-direction:row;flex:1;justify-content:space-between;}
     svg.mini{width:92px;}
     .map-wrap{grid-template-columns:1fr;}
     .detail{position:static;}
@@ -265,11 +286,11 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.23</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.30</div>
   <div class="header-row">
     <div>
-      <h1>Where Next: <span class="accent">Denver Metro</span></h1>
-      <div class="header-sub">48 neighborhoods and 63 schools on real geography — official Denver boundary
+      <h1>Denver, <span class="accent">Weighted</span></h1>
+      <div class="header-sub">48 neighborhoods and 92 schools on real geography — official Denver boundary
       polygons, stylized highways and waterways, and pinned school locations. Fifteen criteria, weighted your way — commute and airport computed from real distances.</div>
     </div>
     <button class="help-btn" id="helpBtn" aria-label="How the score works">?</button>
@@ -301,6 +322,7 @@
     <span><span class="sq" style="background:var(--yellow)"></span>Cherry Creek</span>
     <span><span class="sq" style="background:var(--green)"></span>Littleton / Jeffco / other</span>
   </div>
+  <input class="search-box" id="hoodSearch" type="search" placeholder="Search neighborhoods — rank is kept, list just filters">
   <div class="count-line" id="countLine"></div>
   <main class="list" id="hoodList" aria-live="polite"></main>
 </section>
@@ -311,14 +333,23 @@
     <button class="seg-btn" data-seg="public">Public</button>
     <button class="seg-btn" data-seg="private">Private</button>
   </div>
+  <div class="weight-bar">
+    <span class="wb-label">Ranking:</span>
+    <button class="wb-open" id="openSchoolSettings"><span class="gear">⚙</span> Customize school weights</button>
+  </div>
   <div class="seg" role="group" aria-label="School level filter" style="margin-top:8px">
     <button class="seg-btn lvl active" data-lvl="all">All levels</button>
+    <button class="seg-btn lvl" data-lvl="ECE">Early childhood</button>
     <button class="seg-btn lvl" data-lvl="E">Elementary</button>
     <button class="seg-btn lvl" data-lvl="M">Middle</button>
     <button class="seg-btn lvl" data-lvl="H">High</button>
   </div>
+  <div class="tuition-row"><label for="tuitionMax">Max private tuition</label>
+    <input type="range" id="tuitionMax" min="10" max="45" step="5" value="45">
+    <b id="tuitionVal">any</b></div>
+  <input class="search-box" id="schoolSearch" type="search" placeholder="Search schools — rank is kept, list just filters">
   <div class="count-line" id="schoolCount"></div>
-  <div class="source-line">Composite ordering informed by <a href="https://www.niche.com/k12/search/best-schools/s/colorado/" target="_blank" rel="noopener">Niche Colorado K–12 rankings</a> and <a href="https://www.usnews.com/education/k12/colorado" target="_blank" rel="noopener">U.S. News Colorado schools</a> — blended with program-fit judgment from this research.</div>
+  <div class="source-line">Composite ordering informed by <a href="https://www.niche.com/k12/search/best-schools/s/colorado/" target="_blank" rel="noopener">Niche Colorado K–12 rankings</a> and <a href="https://www.usnews.com/education/k12/colorado" target="_blank" rel="noopener">U.S. News Colorado schools</a> — blended with program-fit judgment from this research. Early-childhood entries are ordered by an editorial blend of accreditation (NAEYC), Colorado Shines ratings, and program influence — no K–12-style composite exists for preschools.</div>
   <main class="list" id="schoolList"></main>
 </section>
 
@@ -357,16 +388,16 @@
 <section class="panel" id="panel-favs">
   <div class="count-line">Neighborhoods rank live under current weights · schools show fixed composite rank · favorites travel inside your share link</div>
   <h2 class="fav-head">Neighborhoods</h2>
-  <p class="fav-empty" id="favHoodEmpty">No favorite neighborhoods yet — tap ☆ Save on any neighborhood card (list or map).</p>
+  <p class="fav-empty" id="favHoodEmpty">No favorite neighborhoods yet — tap the ☆ star on any neighborhood card (list or map).</p>
   <main class="list" id="favHoodList"></main>
   <h2 class="fav-head">Schools</h2>
-  <p class="fav-empty" id="favSchoolEmpty">No favorite schools yet — tap ☆ Save on any school card.</p>
+  <p class="fav-empty" id="favSchoolEmpty">No favorite schools yet — tap the ☆ star on any school card.</p>
   <main class="list" id="favSchoolList"></main>
 </section>
 
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Built on the Where Next platform · v4.23</span>
+  <span>Denver, Weighted · v4.30</span>
 </footer>
 </div>
 
@@ -385,14 +416,14 @@
       <li>Everything — boundaries, roads, water, pins — runs through one lat/lng projection, so positions are mutually true.</li>
     </ul>
     <h3>School list ranking</h3>
-    <p>Fixed editorial composite from <a href="https://www.niche.com/k12/search/best-schools/s/colorado/" target="_blank" rel="noopener">Niche</a>/<a href="https://www.usnews.com/education/k12/colorado" target="_blank" rel="noopener">US News</a> standings, program distinctiveness, and this research. Filter by type (public includes charters/magnets) and level; schools spanning levels appear in every band they serve, and each of the six type×level views contains at least a top 15. Rank shown is position within the current view. Access shows how a family actually gets a seat (Boundary, Lottery, Audition, Gifted ID, Tuition).</p>
+    <p>Fixed editorial composite from <a href="https://www.niche.com/k12/search/best-schools/s/colorado/" target="_blank" rel="noopener">Niche</a>/<a href="https://www.usnews.com/education/k12/colorado" target="_blank" rel="noopener">US News</a> standings, program distinctiveness, and this research. Filter by type (public includes charters/magnets) and level — including early childhood, ranked by an editorial blend of accreditation (NAEYC), Colorado Shines ratings, and program influence, since no Niche/US News composite exists for preschools. Schools spanning levels appear in every band they serve. Rank shown is position within the current view. Access shows how a family actually gets a seat (Boundary, Lottery, Audition, Gifted ID, Tuition). Each card carries a five-wedge program wheel — <b style="color:#3E6B3F">Experiential</b>, <b style="color:#B8860B">Arts</b>, <b style="color:#C93A26">Athletics</b>, <b style="color:#2D5D8C">STEM</b>, <b style="color:#8C6D46">Small &amp; personal</b> — editorial 1–10 reads of program emphasis, independent of the composite rank; hover a wedge for its meaning.</p>
     <p class="fine">Verify any address with the district lookup before an offer. Suburb shapes and road alignments are stylized.</p>
   </div>
 </div>
 
 <div id="quizOverlay" hidden>
   <div class="quiz-card">
-    <div class="quiz-top"><span class="quiz-eyebrow">WHERE NEXT · SETUP</span>
+    <div class="quiz-top"><span class="quiz-eyebrow">DENVER, WEIGHTED · SETUP</span>
       <button class="quiz-skip" id="quizSkip">Skip → use defaults</button></div>
     <div class="quiz-progress" id="quizProgress"></div>
     <div class="quiz-q" id="quizQ"></div>
@@ -428,6 +459,19 @@
   <div class="drawer-extra">
     <button class="wb-open" id="copyShare2">Copy share link</button>
     <div class="share-note">The link encodes these weights, anchor, toggles &amp; favorites — send it and they open the tool wearing your lens.</div>
+  </div>
+</aside>
+<aside id="schoolDrawer" role="dialog" aria-label="School program weights">
+  <div class="drawer-head"><span>School weights</span><button id="closeSchoolSettings" aria-label="Close school weights">×</button></div>
+  <div class="sw-note">Re-rank the Schools tab by blending the fixed composite with the five program grades. Default (Composite ×10) reproduces the published ordering. These weights travel in your share link.</div>
+  <div class="sw-row" id="swRow" role="group" aria-label="School program weights">
+    <label>Composite <b class="swv">10</b><input type="range" data-sw="comp" min="0" max="10" step="1" value="10"></label>
+    <label>Experiential <b class="swv">0</b><input type="range" data-sw="exp" min="0" max="10" step="1" value="0"></label>
+    <label>Arts <b class="swv">0</b><input type="range" data-sw="arts" min="0" max="10" step="1" value="0"></label>
+    <label>Athletics <b class="swv">0</b><input type="range" data-sw="ath" min="0" max="10" step="1" value="0"></label>
+    <label>STEM <b class="swv">0</b><input type="range" data-sw="stem" min="0" max="10" step="1" value="0"></label>
+    <label>Small &amp; personal <b class="swv">0</b><input type="range" data-sw="fit" min="0" max="10" step="1" value="0"></label>
+    <button class="wb-open" id="swReset">Reset to composite</button>
   </div>
 </aside>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -513,7 +557,7 @@ function locateBtn(kind,name,lat,lng){
 }
 function favBtn(kind,idx){
   const on=(kind==='hood'?favHoods:favSchools).has(idx);
-  return `<button class="fav-btn${on?' on':''}" data-fkind="${kind}" data-fidx="${idx}" aria-pressed="${on}" aria-label="${on?'Remove from favorites':'Add to favorites'}">${on?'\u2605 Saved':'\u2606 Save'}</button>`;
+  return `<button class="fav-btn${on?' on':''}" data-fkind="${kind}" data-fidx="${idx}" aria-pressed="${on}" title="${on?'Remove from favorites':'Save to favorites'}" aria-label="${on?'Remove from favorites':'Save to favorites'}">${on?'\u2605':'\u2606'}</button>`;
 }
 
 // =============== CRITERIA / PRESETS ===============
@@ -613,69 +657,98 @@ const HOODS=[
 
 // =============== DATA: SCHOOLS ===============
 const SCHOOLS=[
- {name:'Kent Denver',type:'private',grades:'6\u201312',levels:['M','H'],area:'Cherry Hills Village',access:'Tuition (~$43K)',url:'https://www.kentdenver.org',lat:39.64,lng:-104.938,blurb:'Colorado\u2019s #1 private HS: 200-acre campus, 8:1, the benchmark school.'},
- {name:'D\u2019Evelyn Jr/Sr',type:'public',grades:'6\u201312',levels:['M','H'],area:'Jeffco (SW Lakewood)',access:'Application (Jeffco option)',url:'https://develyn.jeffcopublicschools.org',lat:39.65,lng:-105.113,blurb:'Ranked #1 HS in Colorado; traditional liberal-arts rigor, no boundary.'},
- {name:'Colorado Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'SW Denver',access:'Tuition (~$35K)',url:'https://www.coloradoacademy.org',lat:39.649,lng:-105.08,blurb:'The premier PK\u201312 independent: 94 acres, the full-arc alternative to Graland\u2192Kent.'},
- {name:'Fairview HS',type:'public',grades:'9\u201312',levels:['H'],area:'South Boulder',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Fairview+High+School+Boulder+BVSD',lat:39.986,lng:-105.253,blurb:'Boulder\u2019s academic flagship.'},
- {name:'Cherry Creek HS',type:'public',grades:'9\u201312',levels:['H'],area:'Greenwood Village',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Cherry+Creek+High+School+official+site',lat:39.619,lng:-104.934,blurb:'The metro\u2019s most famous public HS; obtainable at three price tiers.'},
- {name:'Graland Country Day',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Hilltop',access:'Tuition ($31\u201339K)',url:'https://www.graland.org',lat:39.715,lng:-104.933,blurb:'Denver\u2019s premier K\u20138; experiential trips woven into the program, 7:1.'},
- {name:'Stargate School',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Thornton (Adams 12)',access:'Gifted ID + lottery',url:'https://www.stargateschool.org',lat:39.913,lng:-104.955,blurb:'Ranked #4 in Colorado; the north metro\u2019s gifted anchor.'},
- {name:'Peak to Peak',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Lafayette (BVSD)',access:'Lottery',url:'https://www.peaktopeak.org',lat:39.987,lng:-105.11,blurb:'Perennially among the state\u2019s top charters, all three levels in Lafayette.'},
- {name:'Challenge School',type:'public',grades:'K\u20138',levels:['E','M'],area:'Cherry Creek SD',access:'Application (option school)',url:'https://www.google.com/search?q=Challenge+School+Cherry+Creek+official+site',lat:39.69,lng:-104.87,blurb:'CCSD\u2019s accelerated option K\u20138; among the metro\u2019s top-testing schools.'},
- {name:'Dennison Elementary',type:'public',grades:'K\u20136',levels:['E'],area:'Jeffco (Lakewood)',access:'Application (Jeffco option)',url:'https://dennison.jeffcopublicschools.org',lat:39.695,lng:-105.09,blurb:'Jeffco\u2019s classical option elementary; consistently top-3 statewide.'},
- {name:'Polaris Elementary',type:'public',grades:'1\u20135',levels:['E'],area:'NE Denver (DPS magnet)',access:'HGT qualification',url:'https://polaris.dpsk12.org',lat:39.76,lng:-104.959,blurb:'DPS\u2019s highly-gifted magnet; among Denver\u2019s top-ranked schools.'},
- {name:'Stanley British Primary',type:'private',grades:'K\u20138',levels:['E','M'],area:'Lowry',access:'Tuition (~$30K)',url:'https://www.stanleybps.org',lat:39.723,lng:-104.903,blurb:'Denver\u2019s flagship progressive school \u2014 warm British-primary model, mixed-age K\u20138.'},
- {name:'Denver School of the Arts',type:'public',grades:'6\u201312',levels:['M','H'],area:'Park Hill (DPS magnet)',access:'Audition',url:'https://dsa.dpsk12.org',lat:39.747,lng:-104.904,blurb:'Ranked #6 in Colorado; the region\u2019s serious arts magnet.'},
- {name:'Slavens K\u20138',type:'public',grades:'K\u20138',levels:['E','M'],area:'University Park (DPS)',access:'Boundary (DPS)',url:'https://slavens.dpsk12.org',lat:39.661,lng:-104.948,blurb:'DPS\u2019s most coveted boundary school \u2014 guaranteed by address only.'},
- {name:'St. Mary\u2019s Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Cherry Hills Village',access:'Tuition ($26\u201330K)',url:'https://www.smanet.org',lat:39.636,lng:-104.961,blurb:'Denver\u2019s oldest school (1864); co-ed PK\u20138, all-girls HS.'},
- {name:'Regis Jesuit',type:'private',grades:'9\u201312',levels:['H'],area:'Aurora',access:'Tuition (~$22K)',url:'https://www.regisjesuit.com',lat:39.577,lng:-104.796,blurb:'The Catholic heavyweight: 98%+ college acceptance.'},
- {name:'McAuliffe International',type:'public',grades:'6\u20138',levels:['M'],area:'Park Hill (DPS)',access:'Zone priority + lottery',url:'https://mcauliffe.dpsk12.org',lat:39.755,lng:-104.923,blurb:'DPS\u2019s most sought middle school; Park Hill zone priority is real.'},
- {name:'Legacy HS',type:'public',grades:'9\u201312',levels:['H'],area:'Broomfield (Adams 12)',access:'Boundary (Adams 12)',url:'https://www.google.com/search?q=Legacy+High+School+Broomfield+Adams+12',lat:39.955,lng:-105.0,blurb:'Ranked #14 in Colorado; the north metro\u2019s boundary-school standout.'},
- {name:'Rock Canyon HS',type:'public',grades:'9\u201312',levels:['H'],area:'Highlands Ranch (DCSD)',access:'Boundary (DCSD)',url:'https://www.google.com/search?q=Rock+Canyon+High+School+DCSD',lat:39.53,lng:-104.92,blurb:'One of DCSD\u2019s twin flagships.'},
- {name:'Mountain Vista HS',type:'public',grades:'9\u201312',levels:['H'],area:'Highlands Ranch (DCSD)',access:'Boundary (DCSD)',url:'https://www.google.com/search?q=Mountain+Vista+High+School+DCSD',lat:39.525,lng:-104.945,blurb:'The other DCSD flagship; nationally recognized programs.'},
- {name:'Dawson School',type:'private',grades:'K\u201312',levels:['E','M','H'],area:'Lafayette',access:'Tuition (~$32K)',url:'https://www.dawsonschool.org',lat:40.015,lng:-105.067,blurb:'Boulder County\u2019s big independent; the Louisville/Lafayette private backstop.'},
- {name:'The Logan School',type:'private',grades:'K\u20138',levels:['E','M'],area:'NE Denver / Lowry',access:'Gifted admission + tuition',url:'https://www.theloganschool.org',lat:39.731,lng:-104.885,blurb:'Radically experiential and outdoors-heavy, built around gifted-identified kids.'},
- {name:'DSST (flagship network)',type:'charter',grades:'6\u201312',levels:['M','H'],area:'Central Park + 6 campuses',access:'Lottery (zone priority)',url:'https://www.dsstpublicschools.org',lat:39.757,lng:-104.888,blurb:'The state\u2019s strongest charter network; multiple top-12 campuses.'},
- {name:'Prospect Ridge Academy',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Broomfield (Adams 12)',access:'Lottery',url:'https://www.prospectridgeacademy.org',lat:39.945,lng:-105.045,blurb:'Ranked #9 in Colorado; full K\u201312 charter arc in the north metro.'},
- {name:'Mackintosh Academy',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Littleton (+ Boulder)',access:'Gifted admission + tuition',url:'https://www.mackintoshacademy.com',lat:39.607,lng:-105.016,blurb:'IB program for gifted/creative learners; whole-child culture.'},
- {name:'STEM School Highlands Ranch',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Highlands Ranch',access:'Lottery',url:'https://www.stemk12.org',lat:39.542,lng:-104.99,blurb:'Ranked #19 in Colorado; the south metro\u2019s STEM-intensive K\u201312.'},
- {name:'Boulder HS',type:'public',grades:'9\u201312',levels:['H'],area:'Central Boulder',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Boulder+High+School+BVSD',lat:40.013,lng:-105.278,blurb:'Fairview\u2019s central-Boulder sibling; strong IB program.'},
- {name:'Arapahoe HS',type:'public',grades:'9\u201312',levels:['H'],area:'Centennial (LPS)',access:'Boundary (LPS)',url:'https://www.google.com/search?q=Arapahoe+High+School+Littleton+Public+Schools',lat:39.596,lng:-104.955,blurb:'Nationally recognized; anchors the Southglenn value case.'},
- {name:'Heritage HS',type:'public',grades:'9\u201312',levels:['H'],area:'Littleton (LPS)',access:'Boundary (LPS)',url:'https://www.google.com/search?q=Heritage+High+School+Littleton+Public+Schools',lat:39.596,lng:-104.99,blurb:'LPS\u2019s other nationally recognized HS; guaranteed by address.'},
- {name:'Ricks Center for Gifted',type:'private',grades:'PK\u20138',levels:['E','M'],area:'University of Denver',access:'Gifted admission + tuition',url:'https://www.du.edu/ricks',lat:39.677,lng:-104.962,blurb:'Gifted PK\u20138 on the DU campus; University Park\u2019s in-neighborhood option.'},
- {name:'Watershed School',type:'private',grades:'6\u201312',levels:['M','H'],area:'Boulder',access:'Tuition (~$30K)',url:'https://www.watershedschool.org',lat:40.014,lng:-105.253,blurb:'Tiny, progressive, and expedition-based \u2014 a rare project-driven middle & high school.'},
- {name:'St. Anne\u2019s Episcopal',type:'private',grades:'PK\u20138',levels:['E','M'],area:'University area',access:'Tuition (~$28K)',url:'https://www.st-annes.org',lat:39.669,lng:-104.96,blurb:'Seven leafy acres; the warm traditional K\u20138 alternative to Graland.'},
- {name:'Valor Christian',type:'private',grades:'9\u201312',levels:['H'],area:'Highlands Ranch',access:'Tuition (~$21K)',url:'https://www.valorchristian.com',lat:39.545,lng:-105.005,blurb:'The south metro\u2019s big Christian prep; strong academics and athletics.'},
- {name:'Mullen HS',type:'private',grades:'9\u201312',levels:['H'],area:'SW Denver',access:'Tuition (~$18K)',url:'https://www.mullenhigh.com',lat:39.66,lng:-105.045,blurb:'Lasallian Catholic prep; among Denver\u2019s top-ranked private highs.'},
- {name:'East HS',type:'public',grades:'9\u201312',levels:['H'],area:'City Park (DPS)',access:'Boundary (DPS)',url:'https://east.dpsk12.org',lat:39.74,lng:-104.962,blurb:'DPS\u2019s storied flagship; guaranteed HS for east-central Denver.'},
- {name:'Monarch HS',type:'public',grades:'9\u201312',levels:['H'],area:'Louisville (BVSD)',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Monarch+High+School+Louisville+BVSD',lat:39.954,lng:-105.164,blurb:'Louisville/Superior\u2019s guaranteed high school.'},
- {name:'Niwot HS',type:'public',grades:'9\u201312',levels:['H'],area:'Niwot (SVVSD)',access:'Boundary (SVVSD)',url:'https://www.google.com/search?q=Niwot+High+School+SVVSD',lat:40.088,lng:-105.16,blurb:'IB powerhouse; the reason Niwot acreage carries a school premium.'},
- {name:'South HS',type:'public',grades:'9\u201312',levels:['H'],area:'Wash Park (DPS)',access:'Boundary (DPS)',url:'https://south.dpsk12.org',lat:39.699,lng:-104.962,blurb:'The guaranteed HS behind the Steele/Cory boundary play.'},
- {name:'Campus Middle School',type:'public',grades:'6\u20138',levels:['M'],area:'Greenwood Village (CCSD)',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Campus+Middle+School+Cherry+Creek',lat:39.615,lng:-104.9,blurb:'A primary feeder into Cherry Creek HS.'},
- {name:'West Middle School',type:'public',grades:'6\u20138',levels:['M'],area:'Cherry Hills (CCSD)',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=West+Middle+School+Cherry+Creek',lat:39.64,lng:-104.955,blurb:'The Cherry Hills/Holly Hills feeder into Cherry Creek HS.'},
- {name:'International School of Denver',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Lowry',access:'Tuition (~$27K)',url:'https://www.isdenver.org',lat:39.72,lng:-104.895,blurb:'Immersion in French, Spanish, or Mandarin; IB primary program.'},
- {name:'Aspen Academy',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Greenwood Village',access:'Tuition (~$28K)',url:'https://www.aspenacademy.org',lat:39.616,lng:-104.925,blurb:'Entrepreneurship-forward PK\u20138 in the Cherry Creek HS orbit.'},
- {name:'Friends School',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Boulder',access:'Tuition (~$25K)',url:'https://www.friendsschoolboulder.org',lat:40.027,lng:-105.24,blurb:'Whole-child progressive PK\u20138; Boulder Journey\u2019s natural continuation.'},
- {name:'Boulder Country Day',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Gunbarrel / Boulder',access:'Tuition (~$28K)',url:'https://www.bouldercountryday.org',lat:40.035,lng:-105.235,blurb:'Boulder\u2019s traditional independent K\u20138; small classes.'},
- {name:'American Academy',type:'charter',grades:'K\u20138',levels:['E','M'],area:'Castle Pines / Parker (DCSD)',access:'Lottery',url:'https://www.americanacademyk8.org',lat:39.475,lng:-104.9,blurb:'Core-knowledge DCSD charter; among the state\u2019s top K\u20138s.'},
- {name:'Ben Franklin Academy',type:'charter',grades:'K\u20138',levels:['E','M'],area:'Highlands Ranch (DCSD)',access:'Lottery',url:'https://www.bfacademy.org',lat:39.53,lng:-104.965,blurb:'High-performing core-knowledge charter in the DCSD cluster.'},
- {name:'Flagstaff Academy',type:'charter',grades:'K\u20138',levels:['E','M'],area:'Longmont (SVVSD)',access:'Lottery',url:'https://www.flagstaffacademy.org',lat:40.13,lng:-105.12,blurb:'STEM-focused K\u20138 charter; the strong option north of Niwot.'},
- {name:'Cottonwood Creek Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Greenwood Village (CCSD)',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Cottonwood+Creek+Elementary+Cherry+Creek',lat:39.605,lng:-104.9,blurb:'A top CCSD boundary elementary on the Cherry Creek HS track.'},
- {name:'Bear Creek Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'South Boulder (BVSD)',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Bear+Creek+Elementary+Boulder+BVSD',lat:39.985,lng:-105.26,blurb:'Top-rated BVSD boundary elementary on the Fairview track.'},
- {name:'Steele Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Wash Park (DPS)',access:'Boundary (DPS)',url:'https://steele.dpsk12.org',lat:39.698,lng:-104.966,blurb:'The Wash Park boundary elementary \u2014 start of the South HS chain.'},
- {name:'Bromwell Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Country Club (DPS)',access:'Boundary (DPS)',url:'https://bromwell.dpsk12.org',lat:39.717,lng:-104.955,blurb:'Country Club\u2019s coveted boundary elementary on the East HS track.'},
- {name:'Cory Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Cory-Merrill (DPS)',access:'Boundary (DPS)',url:'https://cory.dpsk12.org',lat:39.686,lng:-104.945,blurb:'Anchor of the Cory\u2192Merrill\u2192South guaranteed chain.'},
- {name:'Denver Academy',type:'private',grades:'2\u201312',levels:['E','M','H'],area:'University Hills',access:'Tuition (~$32K)',url:'https://www.denveracademy.org',lat:39.685,lng:-104.945,blurb:'The metro\u2019s standout for dyslexia/ADHD and diverse learners.'},
- {name:'Denver Waldorf School',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'near DU',access:'Tuition (~$24K)',url:'https://www.denverwaldorf.org',lat:39.685,lng:-104.975,blurb:'Full-arc Waldorf education; arts- and rhythm-centered.'},
- {name:'Shining Mountain Waldorf',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'North Boulder',access:'Tuition (~$26K)',url:'https://www.smwaldorf.org',lat:40.04,lng:-105.26,blurb:'Boulder\u2019s PK\u201312 Waldorf school; deep nature integration.'},
- {name:'Montessori School of Denver',type:'private',grades:'PK\u20138',levels:['E','M'],area:'SE Denver',access:'Tuition (~$26K)',url:'https://www.montessoridenver.org',lat:39.688,lng:-104.922,blurb:'The metro\u2019s established independent Montessori through 8th.'},
- {name:'Holy Family HS',type:'private',grades:'9\u201312',levels:['H'],area:'Broomfield',access:'Tuition (~$16K)',url:'https://www.holyfamilyhs.com',lat:39.92,lng:-105.05,blurb:'North metro Catholic prep; strong community and value.'},
- {name:'Denver Christian',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Lakewood',access:'Tuition (~$15K)',url:'https://www.denverchristian.org',lat:39.68,lng:-105.09,blurb:'Century-old Reformed PK\u201312; faith woven through the curriculum.'},
- {name:'Bishop Machebeuf HS',type:'private',grades:'9\u201312',levels:['H'],area:'Lowry',access:'Tuition (~$15K)',url:'https://www.machebeuf.org',lat:39.735,lng:-104.9,blurb:'Small Catholic HS in Lowry; personal scale, solid academics.'},
- {name:'Faith Christian Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Arvada',access:'Tuition (~$13K)',url:'https://www.google.com/search?q=Faith+Christian+Academy+Arvada',lat:39.8,lng:-105.1,blurb:'The NW metro\u2019s main PK\u201312 Christian option.'},
- {name:'Odyssey School of Denver',type:'charter',grades:'K\u20138',levels:['E','M'],area:'NE Park Hill',access:'Lottery',url:'https://www.odysseydenver.org',lat:39.747,lng:-104.91,blurb:'EL Education charter \u2014 expeditionary, project-based learning with a lottery seat.'},
- {name:'Mountain Phoenix Community',type:'charter',grades:'PK\u20138',levels:['E','M'],area:'Wheat Ridge (Jeffco)',access:'Lottery',url:'https://www.mountainphoenix.org',lat:39.785,lng:-105.104,blurb:'Waldorf-inspired charter; patches Wheat Ridge\u2019s guaranteed-school gap.'},
- {name:'Boulder Journey School',type:'private',grades:'ECE (6wk\u20135yr)',levels:['ECE'],area:'North Boulder',access:'Tuition (monthly)',url:'https://www.boulderjourneyschool.com',lat:40.039,lng:-105.273,blurb:'One of the most influential Reggio-inspired early-childhood programs in the US.'},
+ {name:'Kent Denver',type:'private',grades:'6\u201312',levels:['M','H'],area:'Cherry Hills Village',access:'Tuition (~$43K)',url:'https://www.kentdenver.org',lat:39.64,lng:-104.938,blurb:'Colorado\u2019s #1 private HS: 200-acre campus, 8:1, the benchmark school.',g:{exp:7,arts:8,ath:8,stem:8,fit:7},about:['Denver’s most selective independent school: a 200-acre Cherry Hills campus, an 8:1 student-teacher ratio, and a college-counseling operation that places graduates at the most competitive universities in the country.','It sits at the top of this list as the metro’s benchmark for private-school resources and outcomes — the school everything else gets measured against, with admissions selectivity and tuition to match.'],st:{enroll:'~720',ratio:'8:1',cls:'~15'}},
+ {name:'D\u2019Evelyn Jr/Sr',type:'public',grades:'6\u201312',levels:['M','H'],area:'Jeffco (SW Lakewood)',access:'Application (Jeffco option)',url:'https://develyn.jeffcopublicschools.org',lat:39.65,lng:-105.113,blurb:'Ranked #1 HS in Colorado; traditional liberal-arts rigor, no boundary.',g:{exp:3,arts:6,ath:5,stem:8,fit:5},about:['A Jeffco option school built on a traditional liberal-arts core: structured curriculum, required fundamentals, and expectations that produce some of the highest test scores of any public school in Colorado.','It earns its slot by delivering near-private academics at public price to any Jeffco address — but seats come through the option-enrollment process and a long waitlist, not by buying a house.'],st:{enroll:'~1,100',ratio:'19:1',cls:'~26'}},
+ {name:'Colorado Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'SW Denver',access:'Tuition (~$35K)',url:'https://www.coloradoacademy.org',lat:39.649,lng:-105.08,blurb:'The premier PK\u201312 independent: 94 acres, the full-arc alternative to Graland\u2192Kent.',g:{exp:8,arts:8,ath:7,stem:7,fit:7},about:['A PK–12 independent on 94 acres in southwest Denver that deliberately balances rigorous academics with serious arts and an experiential streak — outdoor education and project work are part of the program, not extras.','It’s the all-rounder among the big privates: families choose CA for breadth and warmth rather than a single specialty, and its campus culture is famously less pressured than its peers’.'],st:{enroll:'~1,000',ratio:'8:1',cls:'~16'}},
+ {name:'Fairview HS',type:'public',grades:'9\u201312',levels:['H'],area:'South Boulder',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Fairview+High+School+Boulder+BVSD',lat:39.986,lng:-105.253,blurb:'Boulder\u2019s academic flagship.',g:{exp:4,arts:7,ath:8,stem:9,fit:3},about:['Boulder Valley’s academic flagship: a full IB diploma program, a deep STEM bench, and a perennial stack of National Merit scholars out of a big public high school under the Flatirons.','It matters here because it’s the strongest guaranteed-by-address high school in the dataset — south Boulder home prices carry a measurable school premium, and Fairview is the reason.'],st:{enroll:'~2,100',ratio:'20:1',cls:'~28'}},
+ {name:'Cherry Creek HS',type:'public',grades:'9\u201312',levels:['H'],area:'Greenwood Village',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Cherry+Creek+High+School+official+site',lat:39.619,lng:-104.934,blurb:'The metro\u2019s most famous public HS; obtainable at three price tiers.',g:{exp:4,arts:8,ath:10,stem:8,fit:2},about:['One of the largest high schools in Colorado and a machine for breadth: thousands of students, championship athletics across the board, and essentially every AP course and activity that exists.','Boundary access to it is the entire logic of the Cherry Creek arbitrage plays on the neighborhoods tab. The tradeoff is scale — kids who need to be known by name have to build their own village inside it.'],st:{enroll:'~3,700',ratio:'20:1',cls:'~30'}},
+ {name:'Graland Country Day',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Hilltop',access:'Tuition ($31\u201339K)',url:'https://www.graland.org',lat:39.715,lng:-104.933,blurb:'Denver\u2019s premier K\u20138; experiential trips woven into the program, 7:1.',g:{exp:6,arts:7,ath:6,stem:7,fit:7},about:['A century-old K–8 in Hilltop pairing rigorous academics with polished arts and character education, long woven into the fabric of east Denver family life.','It’s the classic Denver feeder private: the traditional preparation route into Kent, CA, and the East Coast boarding lists, with a parent community to match.'],st:{enroll:'~700',ratio:'8:1',cls:'~16'}},
+ {name:'Stargate School',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Thornton (Adams 12)',access:'Gifted ID + lottery',url:'https://www.stargateschool.org',lat:39.913,lng:-104.955,blurb:'Ranked #4 in Colorado; the north metro\u2019s gifted anchor.',g:{exp:4,arts:5,ath:4,stem:8,fit:6},about:['An Adams 12 charter serving identified gifted learners from kindergarten through high school — one of the few schools in the country built entirely around gifted education, tuition-free.','It’s listed because it changes the math for north-metro families with a gifted kid: identification plus lottery replaces tuition, and the commute may beat paying for a private gifted program.'],st:{enroll:'~1,750',ratio:'17:1',cls:'~26'}},
+ {name:'Peak to Peak',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Lafayette (BVSD)',access:'Lottery',url:'https://www.peaktopeak.org',lat:39.987,lng:-105.11,blurb:'Perennially among the state\u2019s top charters, all three levels in Lafayette.',g:{exp:4,arts:6,ath:5,stem:8,fit:5},about:['A Lafayette K–12 charter that sits at or near the top of Colorado school rankings year after year, running a deliberate college-prep ladder from kindergarten through senior year.','It’s the strongest free non-boundary option in the Boulder Valley orbit — a major reason Lafayette and Louisville score so well on school alternatives. The catch is a genuinely competitive lottery.'],st:{enroll:'~1,450',ratio:'17:1',cls:'~26'}},
+ {name:'Challenge School',type:'public',grades:'K\u20138',levels:['E','M'],area:'Cherry Creek SD',access:'Application (option school)',url:'https://www.google.com/search?q=Challenge+School+Cherry+Creek+official+site',lat:39.69,lng:-104.87,blurb:'CCSD\u2019s accelerated option K\u20138; among the metro\u2019s top-testing schools.',g:{exp:3,arts:5,ath:3,stem:8,fit:6},about:['A Cherry Creek district option school focused on gifted and high-achieving learners, with accelerated academics in a deliberately smaller K–8 setting.','It’s here as the in-district answer for Cherry Creek families whose kids need more than the (already strong) neighborhood schools offer — application-based, no tuition.'],st:{enroll:'~470',ratio:'18:1',cls:'~26'}},
+ {name:'Dennison Elementary',type:'public',grades:'K\u20136',levels:['E'],area:'Jeffco (Lakewood)',access:'Application (Jeffco option)',url:'https://dennison.jeffcopublicschools.org',lat:39.695,lng:-105.09,blurb:'Jeffco\u2019s classical option elementary; consistently top-3 statewide.',g:{exp:3,arts:5,ath:3,stem:6,fit:6},about:['A Jeffco option elementary running the Core Knowledge curriculum with legendary consistency — and one of the longest waitlists in the district to show for it.','It earns a mention as the patch for weak guaranteed elementaries across central Jeffco: families in Wheat Ridge and Lakewood treat a Dennison seat as the local golden ticket.'],st:{enroll:'~560',ratio:'18:1',cls:'~26'}},
+ {name:'Polaris Elementary',type:'public',grades:'1\u20135',levels:['E'],area:'NE Denver (DPS magnet)',access:'HGT qualification',url:'https://polaris.dpsk12.org',lat:39.76,lng:-104.959,blurb:'DPS\u2019s highly-gifted magnet; among Denver\u2019s top-ranked schools.',g:{exp:4,arts:5,ath:3,stem:7,fit:6},about:['DPS’s magnet elementary for highly-gifted learners, where the entire building — not a pull-out program — is built around HGT kids.','It’s listed because Denver families with an identified highly-gifted child can access it from any DPS address, which quietly changes the school calculus for several central neighborhoods.'],st:{enroll:'~350',ratio:'16:1',cls:'~24'}},
+ {name:'Stanley British Primary',type:'private',grades:'K\u20138',levels:['E','M'],area:'Lowry',access:'Tuition (~$30K)',url:'https://www.stanleybps.org',lat:39.723,lng:-104.903,blurb:'Denver\u2019s flagship progressive school \u2014 warm British-primary model, mixed-age K\u20138.',g:{exp:9,arts:8,ath:3,stem:5,fit:9},about:['Denver’s flagship progressive school: a British Primary K–8 at Lowry where mixed-age classrooms, student agency, and warmth are the pedagogy, not a marketing line.','It anchors the progressive end of this list — the strongest local example of child-led education done with rigor, and the school most often compared to the country’s best progressive programs.'],st:{enroll:'~500',ratio:'9:1',cls:'~17'}},
+ {name:'Denver School of the Arts',type:'public',grades:'6\u201312',levels:['M','H'],area:'Park Hill (DPS magnet)',access:'Audition',url:'https://dsa.dpsk12.org',lat:39.747,lng:-104.904,blurb:'Ranked #6 in Colorado; the region\u2019s serious arts magnet.',g:{exp:5,arts:10,ath:2,stem:4,fit:6},about:['DPS’s audition-based arts magnet for grades 6–12, with pre-professional tracks in music, theatre, dance, visual arts, and more — one of the top public arts schools in the country.','For an arts kid it can outweigh every other factor on this site: admission is by audition from any DPS address, which makes it a location-independent reason to live in Denver proper.'],st:{enroll:'~1,100',ratio:'19:1',cls:'~26'}},
+ {name:'Slavens K\u20138',type:'public',grades:'K\u20138',levels:['E','M'],area:'University Park (DPS)',access:'Boundary (DPS)',url:'https://slavens.dpsk12.org',lat:39.661,lng:-104.948,blurb:'DPS\u2019s most coveted boundary school \u2014 guaranteed by address only.',g:{exp:4,arts:5,ath:4,stem:6,fit:5},about:['A boundary K–8 in southeast Denver with test scores and parent demand that rival option schools — no lottery, no application, just an address.','It’s one of the few DPS guarantees strong enough to drive a home purchase by itself, which is why the University Park and Observatory Park entries leaned on it.'],st:{enroll:'~700',ratio:'17:1',cls:'~26'}},
+ {name:'St. Mary\u2019s Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Cherry Hills Village',access:'Tuition ($26\u201330K)',url:'https://www.smanet.org',lat:39.636,lng:-104.961,blurb:'Denver\u2019s oldest school (1864); co-ed PK\u20138, all-girls HS.',g:{exp:5,arts:7,ath:6,stem:6,fit:7},about:['A Catholic school with an all-girls high school and a storied Denver history, pairing strong academics with a close, values-driven community.','It’s here as the leading single-gender option in the metro — a deliberate alternative for families who want that environment at mid-range private tuition.'],st:{enroll:'~700',ratio:'9:1',cls:'~16'}},
+ {name:'Regis Jesuit',type:'private',grades:'9\u201312',levels:['H'],area:'Aurora',access:'Tuition (~$22K)',url:'https://www.regisjesuit.com',lat:39.577,lng:-104.796,blurb:'The Catholic heavyweight: 98%+ college acceptance.',g:{exp:5,arts:6,ath:9,stem:7,fit:5},about:['The Catholic heavyweight: separate boys’ and girls’ divisions, a 98%+ college acceptance rate, and an athletics program that competes nationally.','It makes the list because it delivers big-school resources and outcomes at roughly half the tuition of the elite independents — the value pick among the large privates.'],st:{enroll:'~1,650',ratio:'12:1',cls:'~22'}},
+ {name:'McAuliffe International',type:'public',grades:'6\u20138',levels:['M'],area:'Park Hill (DPS)',access:'Zone priority + lottery',url:'https://mcauliffe.dpsk12.org',lat:39.755,lng:-104.923,blurb:'DPS\u2019s most sought middle school; Park Hill zone priority is real.',g:{exp:5,arts:6,ath:5,stem:6,fit:4},about:['A DPS International Baccalaureate middle school in Park Hill with a strong culture and demand far beyond its zone.','It’s mentioned because middle school is DPS’s weakest link for many addresses — McAuliffe’s zone-priority lottery is the main reason Park Hill scores as well as it does.'],st:{enroll:'~1,500',ratio:'18:1',cls:'~28'}},
+ {name:'Legacy HS',type:'public',grades:'9\u201312',levels:['H'],area:'Broomfield (Adams 12)',access:'Boundary (Adams 12)',url:'https://www.google.com/search?q=Legacy+High+School+Broomfield+Adams+12',lat:39.955,lng:-105.0,blurb:'Ranked #14 in Colorado; the north metro\u2019s boundary-school standout.',g:{exp:3,arts:6,ath:7,stem:7,fit:3},about:['A big Adams 12 boundary high school with an IB program and solid all-around outcomes in the north metro.','It’s the guaranteed-school backbone for the Broomfield-adjacent value neighborhoods — not elite, but dependable, which matters at these price points.'],st:{enroll:'~2,400',ratio:'20:1',cls:'~28'}},
+ {name:'Rock Canyon HS',type:'public',grades:'9\u201312',levels:['H'],area:'Highlands Ranch (DCSD)',access:'Boundary (DCSD)',url:'https://www.google.com/search?q=Rock+Canyon+High+School+DCSD',lat:39.53,lng:-104.92,blurb:'One of DCSD\u2019s twin flagships.',g:{exp:4,arts:6,ath:8,stem:8,fit:3},about:['A Douglas County boundary high school in Highlands Ranch with top-tier test scores and a heavy AP catalog.','It’s listed as one of the two schools that make Highlands Ranch a pure boundary play: strong guaranteed outcomes at suburban prices, HOA life as the tradeoff.'],st:{enroll:'~2,300',ratio:'21:1',cls:'~29'}},
+ {name:'Mountain Vista HS',type:'public',grades:'9\u201312',levels:['H'],area:'Highlands Ranch (DCSD)',access:'Boundary (DCSD)',url:'https://www.google.com/search?q=Mountain+Vista+High+School+DCSD',lat:39.525,lng:-104.945,blurb:'The other DCSD flagship; nationally recognized programs.',g:{exp:4,arts:6,ath:8,stem:7,fit:3},about:['Highlands Ranch’s other flagship boundary high school — large, competitive, and consistently near the top of Colorado’s public rankings.','Together with Rock Canyon it defines the Douglas County value proposition on this list: the address alone secures a school most metros would fight for.'],st:{enroll:'~2,300',ratio:'21:1',cls:'~29'}},
+ {name:'Dawson School',type:'private',grades:'K\u201312',levels:['E','M','H'],area:'Lafayette',access:'Tuition (~$32K)',url:'https://www.dawsonschool.org',lat:40.015,lng:-105.067,blurb:'Boulder County\u2019s big independent; the Louisville/Lafayette private backstop.',g:{exp:8,arts:7,ath:6,stem:7,fit:8},about:['An independent K–12 on 112 acres east of Boulder where outdoor education, character, and small classes carry equal weight with academics.','It’s the Boulder-side answer for families wanting the experiential private route — and its bus routes make it a realistic option from Louisville, Lafayette, and Niwot.'],st:{enroll:'~530',ratio:'8:1',cls:'~14'}},
+ {name:'The Logan School',type:'private',grades:'K\u20138',levels:['E','M'],area:'NE Denver / Lowry',access:'Gifted admission + tuition',url:'https://www.theloganschool.org',lat:39.731,lng:-104.885,blurb:'Radically experiential and outdoors-heavy, built around gifted-identified kids.',g:{exp:10,arts:6,ath:2,stem:7,fit:9},about:['A radically experiential K–8 for gifted-identified kids: expeditions, real-world projects, and student-driven inquiry instead of worksheets and grade levels.','It’s on the list as the metro’s purest expression of experiential gifted education — tiny, distinctive, and unlike anything else here; admission requires gifted identification plus tuition.'],st:{enroll:'~230',ratio:'8:1',cls:'~12'}},
+ {name:'DSST (flagship network)',type:'charter',grades:'6\u201312',levels:['M','H'],area:'Central Park + 6 campuses',access:'Lottery (zone priority)',url:'https://www.dsstpublicschools.org',lat:39.757,lng:-104.888,blurb:'The state\u2019s strongest charter network; multiple top-12 campuses.',g:{exp:3,arts:4,ath:4,stem:10,fit:5},about:['Denver’s flagship STEM charter network, whose original campuses post some of the strongest college-readiness numbers of any open-enrollment public schools in America.','It’s mentioned because a DSST lottery seat rewrites the school math for much of Denver — a free, rigorous 6–12 path that doesn’t care what your address guarantees.'],st:{enroll:'~1,100 per campus',ratio:'15:1',cls:'~24'}},
+ {name:'Prospect Ridge Academy',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Broomfield (Adams 12)',access:'Lottery',url:'https://www.prospectridgeacademy.org',lat:39.945,lng:-105.045,blurb:'Ranked #9 in Colorado; full K\u201312 charter arc in the north metro.',g:{exp:3,arts:5,ath:5,stem:7,fit:5},about:['A Broomfield-area K–12 charter with a structured, high-expectations program and strong results across all levels.','It earns its slot as the north metro’s dependable charter ladder — a single lottery win covers kindergarten through graduation.'],st:{enroll:'~1,400',ratio:'17:1',cls:'~25'}},
+ {name:'Mackintosh Academy',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Littleton (+ Boulder)',access:'Gifted admission + tuition',url:'https://www.mackintoshacademy.com',lat:39.607,lng:-105.016,blurb:'IB program for gifted/creative learners; whole-child culture.',g:{exp:7,arts:6,ath:2,stem:7,fit:9},about:['A small IB school for gifted learners in Littleton, pairing international-baccalaureate structure with genuinely individual attention.','It’s here for south-metro families with a gifted kid who needs a small pond — the intimate counterpart to the bigger gifted programs on this list.'],st:{enroll:'~250',ratio:'9:1',cls:'~14'}},
+ {name:'STEM School Highlands Ranch',type:'charter',grades:'K\u201312',levels:['E','M','H'],area:'Highlands Ranch',access:'Lottery',url:'https://www.stemk12.org',lat:39.542,lng:-104.99,blurb:'Ranked #19 in Colorado; the south metro\u2019s STEM-intensive K\u201312.',g:{exp:3,arts:4,ath:4,stem:10,fit:4},about:['A Douglas County charter built entirely around STEM: engineering, computing, and problem-based learning from elementary onward.','It’s the list’s strongest pure-STEM option — for the kid who wants robotics at nine, nothing else here goes as deep, and it’s free by lottery.'],st:{enroll:'~1,900',ratio:'18:1',cls:'~27'}},
+ {name:'Boulder HS',type:'public',grades:'9\u201312',levels:['H'],area:'Central Boulder',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Boulder+High+School+BVSD',lat:40.013,lng:-105.278,blurb:'Fairview\u2019s central-Boulder sibling; strong IB program.',g:{exp:5,arts:7,ath:7,stem:7,fit:3},about:['Boulder’s in-town comprehensive high school: strong academics, deep arts, and the cultural energy of a college town attached.','It’s listed because central Boulder addresses guarantee it — a very good school that gets overshadowed by Fairview but stands tall anywhere else.'],st:{enroll:'~2,000',ratio:'20:1',cls:'~28'}},
+ {name:'Arapahoe HS',type:'public',grades:'9\u201312',levels:['H'],area:'Centennial (LPS)',access:'Boundary (LPS)',url:'https://www.google.com/search?q=Arapahoe+High+School+Littleton+Public+Schools',lat:39.596,lng:-104.955,blurb:'Nationally recognized; anchors the Southglenn value case.',g:{exp:4,arts:7,ath:8,stem:7,fit:3},about:['A Littleton Public Schools boundary high school with a long record of academic steadiness and strong community loyalty.','It anchors the Old Littleton value case: solid guaranteed outcomes from a district small enough to feel human.'],st:{enroll:'~2,200',ratio:'21:1',cls:'~29'}},
+ {name:'Heritage HS',type:'public',grades:'9\u201312',levels:['H'],area:'Littleton (LPS)',access:'Boundary (LPS)',url:'https://www.google.com/search?q=Heritage+High+School+Littleton+Public+Schools',lat:39.596,lng:-104.99,blurb:'LPS\u2019s other nationally recognized HS; guaranteed by address.',g:{exp:4,arts:6,ath:7,stem:7,fit:4},about:['Littleton’s other strong boundary high school, academically dependable with notable arts.','Together with Arapahoe it makes LPS one of the metro’s quiet guaranteed-school bargains — the engine behind Old Littleton’s score.'],st:{enroll:'~1,750',ratio:'20:1',cls:'~27'}},
+ {name:'Ricks Center for Gifted',type:'private',grades:'PK\u20138',levels:['E','M'],area:'University of Denver',access:'Gifted admission + tuition',url:'https://www.du.edu/ricks',lat:39.677,lng:-104.962,blurb:'Gifted PK\u20138 on the DU campus; University Park\u2019s in-neighborhood option.',g:{exp:6,arts:6,ath:2,stem:7,fit:9},about:['A PK–8 school for gifted learners on the University of Denver campus, blending acceleration with research-informed practice from DU’s education school.','It’s mentioned as the academic-university flavor of gifted education — small, deliberate, and centrally located for city families.'],st:{enroll:'~230',ratio:'8:1',cls:'~13'}},
+ {name:'Watershed School',type:'private',grades:'6\u201312',levels:['M','H'],area:'Boulder',access:'Tuition (~$30K)',url:'https://www.watershedschool.org',lat:40.014,lng:-105.253,blurb:'Tiny, progressive, and expedition-based \u2014 a rare project-driven middle & high school.',g:{exp:10,arts:6,ath:3,stem:5,fit:9},about:['A tiny expedition-based middle and high school in Boulder where semesters are built around real fieldwork — watersheds, cities, wilderness — rather than subjects in rows.','It’s the boldest experiential option on the list at the secondary level: for the right teenager it’s transformative, and its size means everyone is known.'],st:{enroll:'~120',ratio:'7:1',cls:'~11'}},
+ {name:'St. Anne\u2019s Episcopal',type:'private',grades:'PK\u20138',levels:['E','M'],area:'University area',access:'Tuition (~$28K)',url:'https://www.st-annes.org',lat:39.669,lng:-104.96,blurb:'Seven leafy acres; the warm traditional K\u20138 alternative to Graland.',g:{exp:6,arts:7,ath:5,stem:6,fit:8},about:['A preschool–8 Episcopal school in Denver with warm community, strong academics, and understated polish.','It’s here as the gentle-landing private: families who find the feeder-school race joyless often land at St. Anne’s and stay.'],st:{enroll:'~440',ratio:'8:1',cls:'~15'}},
+ {name:'Valor Christian',type:'private',grades:'9\u201312',levels:['H'],area:'Highlands Ranch',access:'Tuition (~$21K)',url:'https://www.valorchristian.com',lat:39.545,lng:-105.005,blurb:'The south metro\u2019s big Christian prep; strong academics and athletics.',g:{exp:4,arts:7,ath:10,stem:6,fit:5},about:['A Christian college-prep high school in Highlands Ranch whose athletics program competes with anyone in the state — and whose facilities look collegiate.','It makes the list because for a seriously athletic kid it offers a national-caliber stage plus solid academics at mid-range tuition.'],st:{enroll:'~1,150',ratio:'12:1',cls:'~21'}},
+ {name:'Mullen HS',type:'private',grades:'9\u201312',levels:['H'],area:'SW Denver',access:'Tuition (~$18K)',url:'https://www.mullenhigh.com',lat:39.66,lng:-105.045,blurb:'Lasallian Catholic prep; among Denver\u2019s top-ranked private highs.',g:{exp:3,arts:5,ath:9,stem:5,fit:5},about:['A Lasallian Catholic high school in southwest Denver with a century of history and a strong athletic tradition.','It’s the accessible Catholic option for the city’s southwest quadrant — tradition and community at one of the lower private price points here.'],st:{enroll:'~1,100',ratio:'13:1',cls:'~23'}},
+ {name:'East HS',type:'public',grades:'9\u201312',levels:['H'],area:'City Park (DPS)',access:'Boundary (DPS)',url:'https://east.dpsk12.org',lat:39.74,lng:-104.962,blurb:'DPS\u2019s storied flagship; guaranteed HS for east-central Denver.',g:{exp:3,arts:8,ath:7,stem:6,fit:2},about:['Denver’s storied comprehensive high school on City Park: huge, diverse, historically significant, with strong arts and a real civic identity.','It’s listed because much of central-east Denver feeds it by right — an urban high school experience with genuine strengths, best fit for self-directed kids.'],st:{enroll:'~2,500',ratio:'21:1',cls:'~30'}},
+ {name:'Monarch HS',type:'public',grades:'9\u201312',levels:['H'],area:'Louisville (BVSD)',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Monarch+High+School+Louisville+BVSD',lat:39.954,lng:-105.164,blurb:'Louisville/Superior\u2019s guaranteed high school.',g:{exp:4,arts:6,ath:7,stem:7,fit:3},about:['Boulder Valley’s Louisville-area high school: consistently strong academics without Fairview’s pressure cooker reputation.','It’s the guaranteed school behind Louisville’s and Superior’s top-tier scores — the rare case where the default option is the draw.'],st:{enroll:'~1,700',ratio:'20:1',cls:'~28'}},
+ {name:'Niwot HS',type:'public',grades:'9\u201312',levels:['H'],area:'Niwot (SVVSD)',access:'Boundary (SVVSD)',url:'https://www.google.com/search?q=Niwot+High+School+SVVSD',lat:40.088,lng:-105.16,blurb:'IB powerhouse; the reason Niwot acreage carries a school premium.',g:{exp:4,arts:7,ath:6,stem:8,fit:4},about:['St. Vrain’s IB powerhouse serving the Niwot area, with an international-baccalaureate program that draws from across the district.','It’s the reason Niwot acreage carries a school premium — a small-town address with a big-credential high school attached.'],st:{enroll:'~1,250',ratio:'19:1',cls:'~26'}},
+ {name:'South HS',type:'public',grades:'9\u201312',levels:['H'],area:'Wash Park (DPS)',access:'Boundary (DPS)',url:'https://south.dpsk12.org',lat:39.699,lng:-104.962,blurb:'The guaranteed HS behind the Steele/Cory boundary play.',g:{exp:3,arts:6,ath:6,stem:5,fit:3},about:['A DPS comprehensive on Washington Park climbing steadily, with an IB program and one of the city’s most diverse student bodies.','It’s mentioned because the Wash Park–area neighborhoods feed it by right, and its trajectory is central to how those entries were scored.'],st:{enroll:'~1,700',ratio:'19:1',cls:'~28'}},
+ {name:'Campus Middle School',type:'public',grades:'6\u20138',levels:['M'],area:'Greenwood Village (CCSD)',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Campus+Middle+School+Cherry+Creek',lat:39.615,lng:-104.9,blurb:'A primary feeder into Cherry Creek HS.',g:{exp:3,arts:6,ath:6,stem:7,fit:3},about:['A Cherry Creek district middle school feeding Cherry Creek High, with the district’s trademark depth of academics and activities.','It’s here because middle school quality is where many suburban chains crack — Campus is a large part of why the Creek-side neighborhoods hold their scores.'],st:{enroll:'~1,400',ratio:'19:1',cls:'~27'}},
+ {name:'West Middle School',type:'public',grades:'6\u20138',levels:['M'],area:'Cherry Hills (CCSD)',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=West+Middle+School+Cherry+Creek',lat:39.64,lng:-104.955,blurb:'The Cherry Hills/Holly Hills feeder into Cherry Creek HS.',g:{exp:3,arts:6,ath:6,stem:7,fit:3},about:['Cherry Creek’s other flagship middle school, serving the district’s western neighborhoods with the same breadth and consistency.','Like Campus, it exists on this list to show the guaranteed chain holds at every level — not just at the famous high school.'],st:{enroll:'~1,000',ratio:'18:1',cls:'~26'}},
+ {name:'International School of Denver',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Lowry',access:'Tuition (~$27K)',url:'https://www.isdenver.org',lat:39.72,lng:-104.895,blurb:'Immersion in French, Spanish, or Mandarin; IB primary program.',g:{exp:5,arts:6,ath:3,stem:6,fit:7},about:['A language-immersion school (French, Spanish, Mandarin) running the IB primary and middle-years programs in central Denver.','It’s the list’s global option: full bilingual education without leaving the city, valued especially by internationally mobile families.'],st:{enroll:'~700',ratio:'9:1',cls:'~17'}},
+ {name:'Aspen Academy',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Greenwood Village',access:'Tuition (~$28K)',url:'https://www.aspenacademy.org',lat:39.616,lng:-104.925,blurb:'Entrepreneurship-forward PK\u20138 in the Cherry Creek HS orbit.',g:{exp:6,arts:6,ath:4,stem:7,fit:8},about:['A PK–8 in Greenwood Village built around leadership and entrepreneurship — students literally run businesses — atop solid academics.','It’s mentioned as the most distinctive south-metro private program: not a feeder clone, but its own idea about what childhood education is for.'],st:{enroll:'~400',ratio:'9:1',cls:'~15'}},
+ {name:'Friends School',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Boulder',access:'Tuition (~$25K)',url:'https://www.friendsschoolboulder.org',lat:40.027,lng:-105.24,blurb:'Whole-child progressive PK\u20138; Boulder Journey\u2019s natural continuation.',g:{exp:8,arts:7,ath:2,stem:5,fit:9},about:['A Boulder PK–8 rooted in whole-child, relationship-first education, where social-emotional depth is treated as inseparable from academics.','It’s here as Boulder’s gentlest serious school — the choice for families who want warmth and depth over acceleration.'],st:{enroll:'~230',ratio:'8:1',cls:'~14'}},
+ {name:'Boulder Country Day',type:'private',grades:'PK\u20138',levels:['E','M'],area:'Gunbarrel / Boulder',access:'Tuition (~$28K)',url:'https://www.bouldercountryday.org',lat:40.035,lng:-105.235,blurb:'Boulder\u2019s traditional independent K\u20138; small classes.',g:{exp:6,arts:6,ath:4,stem:6,fit:8},about:['A PK–8 independent in Boulder pairing small classes with structured academics and a strong sense of community.','It rounds out the Boulder private set: the traditional-format counterpart to the county’s progressive options.'],st:{enroll:'~440',ratio:'8:1',cls:'~15'}},
+ {name:'American Academy',type:'charter',grades:'K\u20138',levels:['E','M'],area:'Castle Pines / Parker (DCSD)',access:'Lottery',url:'https://www.americanacademyk8.org',lat:39.475,lng:-104.9,blurb:'Core-knowledge DCSD charter; among the state\u2019s top K\u20138s.',g:{exp:3,arts:5,ath:4,stem:7,fit:5},about:['A Douglas County Core Knowledge charter network with strict structure, uniforms, and strong test outcomes.','It’s listed as the south metro’s dependable classical option — free, orderly, and popular enough that the lottery is the real gate.'],st:{enroll:'~900 per campus',ratio:'17:1',cls:'~26'}},
+ {name:'Ben Franklin Academy',type:'charter',grades:'K\u20138',levels:['E','M'],area:'Highlands Ranch (DCSD)',access:'Lottery',url:'https://www.bfacademy.org',lat:39.53,lng:-104.965,blurb:'High-performing core-knowledge charter in the DCSD cluster.',g:{exp:3,arts:5,ath:4,stem:7,fit:5},about:['A Highlands Ranch K–8 charter with a Core Knowledge backbone and a strong parent community.','It’s here to show Douglas County’s charter depth: even beyond the boundary schools, the free alternatives are strong.'],st:{enroll:'~900',ratio:'17:1',cls:'~26'}},
+ {name:'Flagstaff Academy',type:'charter',grades:'K\u20138',levels:['E','M'],area:'Longmont (SVVSD)',access:'Lottery',url:'https://www.flagstaffacademy.org',lat:40.13,lng:-105.12,blurb:'STEM-focused K\u20138 charter; the strong option north of Niwot.',g:{exp:4,arts:5,ath:3,stem:8,fit:5},about:['A Longmont K–8 charter with a STEM focus and consistently strong results in the St. Vrain district.','It’s the northern counterweight — evidence that the Longmont/Niwot corridor has real school-choice depth beyond its boundary options.'],st:{enroll:'~800',ratio:'16:1',cls:'~25'}},
+ {name:'Cottonwood Creek Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Greenwood Village (CCSD)',access:'Boundary (CCSD)',url:'https://www.google.com/search?q=Cottonwood+Creek+Elementary+Cherry+Creek',lat:39.605,lng:-104.9,blurb:'A top CCSD boundary elementary on the Cherry Creek HS track.',g:{exp:4,arts:5,ath:4,stem:6,fit:5},about:['A Cherry Creek boundary elementary serving the Homestead area, quietly posting some of the district’s best elementary numbers.','It’s mentioned because the Homestead/Willow Creek entry rests on its chain — the elementary is where that guarantee starts.'],st:{enroll:'~600',ratio:'17:1',cls:'~25'}},
+ {name:'Bear Creek Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'South Boulder (BVSD)',access:'Boundary (BVSD)',url:'https://www.google.com/search?q=Bear+Creek+Elementary+Boulder+BVSD',lat:39.985,lng:-105.26,blurb:'Top-rated BVSD boundary elementary on the Fairview track.',g:{exp:6,arts:5,ath:3,stem:6,fit:6},about:['A south Boulder boundary elementary with strong academics and a neighborhood-school feel at the foot of the Flatirons.','It’s here as the first link in the Fairview chain — the school that makes Table Mesa addresses work from kindergarten on.'],st:{enroll:'~450',ratio:'17:1',cls:'~24'}},
+ {name:'Steele Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Wash Park (DPS)',access:'Boundary (DPS)',url:'https://steele.dpsk12.org',lat:39.698,lng:-104.966,blurb:'The Wash Park boundary elementary \u2014 start of the South HS chain.',g:{exp:4,arts:5,ath:3,stem:5,fit:6},about:['A beloved DPS boundary elementary in Wash Park with strong fundamentals and deep parent involvement.','It’s one of the three central-Denver elementaries listed to show which city addresses actually guarantee a strong start.'],st:{enroll:'~470',ratio:'17:1',cls:'~25'}},
+ {name:'Bromwell Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Country Club (DPS)',access:'Boundary (DPS)',url:'https://bromwell.dpsk12.org',lat:39.717,lng:-104.955,blurb:'Country Club\u2019s coveted boundary elementary on the East HS track.',g:{exp:4,arts:5,ath:3,stem:5,fit:6},about:['Cherry Creek North’s boundary elementary — small, high-performing, and a big piece of the neighborhood’s family appeal.','Like Steele and Cory, it’s here because a strong guaranteed elementary is what makes central Denver work for young families.'],st:{enroll:'~350',ratio:'16:1',cls:'~24'}},
+ {name:'Cory Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Cory-Merrill (DPS)',access:'Boundary (DPS)',url:'https://cory.dpsk12.org',lat:39.686,lng:-104.945,blurb:'Anchor of the Cory\u2192Merrill\u2192South guaranteed chain.',g:{exp:4,arts:5,ath:3,stem:5,fit:6},about:['A DPS boundary elementary serving the Cory-Merrill area, paired with Slavens’ middle years as the neighborhood’s prized chain.','It’s listed as part of the strongest all-boundary elementary-through-eight path in the city — the engine of Cory-Merrill’s score.'],st:{enroll:'~450',ratio:'17:1',cls:'~25'}},
+ {name:'Denver Academy',type:'private',grades:'2\u201312',levels:['E','M','H'],area:'University Hills',access:'Tuition (~$32K)',url:'https://www.denveracademy.org',lat:39.685,lng:-104.945,blurb:'The metro\u2019s standout for dyslexia/ADHD and diverse learners.',g:{exp:6,arts:6,ath:4,stem:5,fit:9},about:['A Denver institution built for kids with learning differences — dyslexia, ADHD, processing styles — where the entire pedagogy is designed around how they actually learn.','It’s on this list because for the family that needs it, nothing else here substitutes: it’s the metro’s deepest expertise in learning differences, full stop.'],st:{enroll:'~400',ratio:'6:1',cls:'~10'}},
+ {name:'Denver Waldorf School',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'near DU',access:'Tuition (~$24K)',url:'https://www.denverwaldorf.org',lat:39.685,lng:-104.975,blurb:'Full-arc Waldorf education; arts- and rhythm-centered.',g:{exp:9,arts:9,ath:3,stem:3,fit:8},about:['Colorado’s original Waldorf school: arts-integrated, screen-light, rhythm-and-nature-based education from early childhood through high school age ranges.','It anchors the Waldorf option in the city proper — the fully realized version of the pedagogy that Mountain Phoenix offers in charter form.'],st:{enroll:'~300',ratio:'9:1',cls:'~18'}},
+ {name:'Shining Mountain Waldorf',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'North Boulder',access:'Tuition (~$26K)',url:'https://www.smwaldorf.org',lat:40.04,lng:-105.26,blurb:'Boulder\u2019s PK\u201312 Waldorf school; deep nature integration.',g:{exp:9,arts:9,ath:3,stem:3,fit:8},about:['Boulder’s Waldorf school, carrying the pedagogy through high school with the mountains as a standing classroom.','It’s the county’s deepest alternative-education commitment — for families all-in on Waldorf, it’s the reason Boulder addresses work.'],st:{enroll:'~300',ratio:'9:1',cls:'~18'}},
+ {name:'Montessori School of Denver',type:'private',grades:'PK\u20138',levels:['E','M'],area:'SE Denver',access:'Tuition (~$26K)',url:'https://www.montessoridenver.org',lat:39.688,lng:-104.922,blurb:'The metro\u2019s established independent Montessori through 8th.',g:{exp:8,arts:7,ath:2,stem:5,fit:8},about:['A toddler-through-8 Montessori school in Denver with authentic, trained-guide classrooms rather than Montessori-in-name-only branding.','It’s listed as the city’s benchmark Montessori — the standard against which the many Montessori-flavored preschools should be measured.'],st:{enroll:'~350',ratio:'8:1',cls:'~18'}},
+ {name:'Holy Family HS',type:'private',grades:'9\u201312',levels:['H'],area:'Broomfield',access:'Tuition (~$16K)',url:'https://www.holyfamilyhs.com',lat:39.92,lng:-105.05,blurb:'North metro Catholic prep; strong community and value.',g:{exp:3,arts:5,ath:8,stem:5,fit:6},about:['A Catholic high school in Broomfield with strong community, solid academics, and a statewide athletics reputation.','It’s the north metro’s Catholic anchor — the accessible faith-based option for the Adams and Broomfield value neighborhoods.'],st:{enroll:'~600',ratio:'13:1',cls:'~22'}},
+ {name:'Denver Christian',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Lakewood',access:'Tuition (~$15K)',url:'https://www.denverchristian.org',lat:39.68,lng:-105.09,blurb:'Century-old Reformed PK\u201312; faith woven through the curriculum.',g:{exp:3,arts:5,ath:6,stem:5,fit:7},about:['A K–12 Christian school in Lakewood with small classes and a tight community across all grades.','It’s mentioned as the west side’s single-campus faith option — one enrollment decision covering thirteen years.'],st:{enroll:'~600',ratio:'12:1',cls:'~20'}},
+ {name:'Bishop Machebeuf HS',type:'private',grades:'9\u201312',levels:['H'],area:'Lowry',access:'Tuition (~$15K)',url:'https://www.machebeuf.org',lat:39.735,lng:-104.9,blurb:'Small Catholic HS in Lowry; personal scale, solid academics.',g:{exp:3,arts:5,ath:6,stem:5,fit:8},about:['A small Catholic high school in Lowry where personal scale is the point: everyone is known, and academics are solid.','It’s here as the intimate alternative to the big Catholic schools — same tradition, one-tenth the anonymity.'],st:{enroll:'~350',ratio:'11:1',cls:'~18'}},
+ {name:'Faith Christian Academy',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'Arvada',access:'Tuition (~$13K)',url:'https://www.google.com/search?q=Faith+Christian+Academy+Arvada',lat:39.8,lng:-105.1,blurb:'The NW metro\u2019s main PK\u201312 Christian option.',g:{exp:3,arts:5,ath:7,stem:4,fit:6},about:['A PK–12 Christian academy in Arvada with strong athletics and an active school community.','It’s the northwest metro’s main faith-based option — relevant to the Arvada and Wheat Ridge entries at the lowest private tuition on this list.'],st:{enroll:'~900',ratio:'13:1',cls:'~22'}},
+ {name:'Odyssey School of Denver',type:'charter',grades:'K\u20138',levels:['E','M'],area:'NE Park Hill',access:'Lottery',url:'https://www.odysseydenver.org',lat:39.747,lng:-104.91,blurb:'EL Education charter \u2014 expeditionary, project-based learning with a lottery seat.',g:{exp:9,arts:6,ath:3,stem:5,fit:7},about:['An EL Education (Expeditionary Learning) K–8 charter in NE Park Hill where learning happens through long-form expeditions, fieldwork, and public products.','It’s the list’s free experiential option — the lottery-based route to the pedagogy that otherwise costs private tuition in this metro.'],st:{enroll:'~440',ratio:'14:1',cls:'~26'}},
+ {name:'Mountain Phoenix Community',type:'charter',grades:'PK\u20138',levels:['E','M'],area:'Wheat Ridge (Jeffco)',access:'Lottery',url:'https://www.mountainphoenix.org',lat:39.785,lng:-105.104,blurb:'Waldorf-inspired charter; patches Wheat Ridge\u2019s guaranteed-school gap.',g:{exp:9,arts:9,ath:3,stem:3,fit:7},about:['A Waldorf-inspired PK–8 charter in Wheat Ridge: arts-integrated, nature-forward, and tuition-free.','It’s load-bearing for this tool — the school that patches Wheat Ridge’s weak guaranteed chain and makes those lot-rich neighborhoods viable for alternative-education families.'],st:{enroll:'~500',ratio:'14:1',cls:'~24'}},
+ {name:'Boulder Journey School',type:'private',grades:'ECE (6wk\u20135yr)',levels:['ECE'],area:'North Boulder',access:'Tuition (monthly)',url:'https://www.boulderjourneyschool.com',lat:40.039,lng:-105.273,blurb:'One of the most influential Reggio-inspired early-childhood programs in the US.',g:{exp:9,arts:8,ath:1,stem:3,fit:10},about:['One of the most influential Reggio Emilia-inspired early-childhood programs in the country, studied by educators worldwide, serving infants through kindergarten age.','It’s the only pure early-childhood entry — included because for families starting the school journey, it represents the strongest ECE thinking in the region.'],st:{enroll:'~250',ratio:'5:1',cls:'~14'}},
+ {name:'Clayton Early Learning',type:'public',grades:'ECE',levels:['ECE'],area:'NE Park Hill',access:'Head Start / income-qualified + tuition',url:'https://www.google.com/search?q=Clayton+Early+Learning+Colorado',lat:39.76,lng:-104.941,blurb:'Educare flagship on a historic campus — Denver’s national reference point for research-backed early learning.',g:{exp:6,arts:5,ath:2,stem:4,fit:7},about:['A national Educare flagship and working research campus where early-childhood practice is studied, refined, and taught to other programs across the country.','It leads the ECE band because it pairs credentialed, research-grade teaching with genuinely mixed-income access — Head Start seats alongside tuition families on one campus.'],st:{enroll:'~500',ratio:'4:1',cls:'~16'}},
+ {name:'Fisher Early Learning Center',type:'private',grades:'ECE',levels:['ECE'],area:'University (DU campus)',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Fisher+Early+Learning+Center+Colorado',lat:39.676,lng:-104.966,blurb:'University of Denver’s inclusive, Reggio-informed center — typical learners and kids with developmental needs side by side.',g:{exp:7,arts:6,ath:2,stem:4,fit:8},about:['The University of Denver’s early learning center: Reggio-informed classrooms, an intentional inclusion model, and university expertise a hallway away.','It’s ranked high for doing the two hardest things well at once — genuine inclusion of children with developmental needs and high-quality practice for everyone else.'],st:{enroll:'~230',ratio:'5:1',cls:'~14'}},
+ {name:'Sewall Child Development Center',type:'private',grades:'ECE',levels:['ECE'],area:'City Park / Congress Park',access:'Tuition + funded inclusion seats',url:'https://www.google.com/search?q=Sewall+Child+Development+Center+Colorado',lat:39.731,lng:-104.953,blurb:'Denver’s inclusion pioneer: children with and without disabilities learning together since 1943.',g:{exp:6,arts:5,ath:2,stem:3,fit:9},about:['A Denver institution built on inclusive education — children with disabilities and typical peers share every classroom, supported by on-site therapists.','For families navigating a diagnosis, it’s the strongest early-childhood answer in the metro; for everyone else, it’s a masterclass in empathy as curriculum.'],st:{enroll:'~200',ratio:'4:1',cls:'~12'}},
+ {name:'Montview Community Preschool & Kindergarten',type:'private',grades:'ECE',levels:['ECE'],area:'Park Hill',access:'Tuition (co-op hours expected)',url:'https://www.google.com/search?q=Montview+Community+Preschool+%26+Kindergarten+Colorado',lat:39.747,lng:-104.923,blurb:'Park Hill’s beloved play-based co-op — six decades of parents in the classroom.',g:{exp:7,arts:6,ath:2,stem:2,fit:9},about:['A parent-cooperative preschool that has anchored Park Hill family life for generations, with play-based classrooms and parents working regular shifts.','It’s here as the metro’s exemplar co-op: tuition stays modest because families supply the labor, and the community it builds outlasts the preschool years.'],st:{enroll:'~120',ratio:'6:1',cls:'~15'}},
+ {name:'Jarrow Montessori',type:'private',grades:'ECE',levels:['ECE'],area:'North Boulder',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Jarrow+Montessori+Colorado',lat:40.023,lng:-105.243,blurb:'Colorado’s oldest Montessori school — toddlers through kindergarten on a leafy Boulder campus.',g:{exp:7,arts:6,ath:2,stem:4,fit:8},about:['Founded in 1964, Jarrow is the state’s original Montessori school, with authentic trained-guide classrooms from toddlerhood up.','It ranks as the Boulder-side Montessori benchmark — the program others borrow language from, with the accreditation to back it.'],st:{enroll:'~200',ratio:'6:1',cls:'~18'}},
+ {name:'Montessori Academy of Colorado',type:'private',grades:'ECE',levels:['ECE'],area:'Downtown / Ballpark',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Montessori+Academy+of+Colorado+Colorado',lat:39.756,lng:-104.984,blurb:'Downtown Denver’s full-day AMS Montessori — infants through kindergarten for working-parent schedules.',g:{exp:6,arts:5,ath:2,stem:4,fit:7},about:['A full-day, year-round Montessori serving downtown families from infancy through kindergarten, accredited and unusually schedule-friendly.','It’s listed because it solves the center-city equation: authentic Montessori without the part-day hours that rule out most programs for two-career households.'],st:{enroll:'~250',ratio:'6:1',cls:'~16'}},
+ {name:'Montessori Children’s House of Denver',type:'private',grades:'ECE',levels:['ECE'],area:'Park Hill / Mayfair',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Montessori+Children’s+House+of+Denver+Colorado',lat:39.741,lng:-104.916,blurb:'East Denver Montessori with toddler-through-kindergarten depth across neighborhood campuses.',g:{exp:6,arts:5,ath:2,stem:4,fit:8},about:['An established east-Denver Montessori with multiple intimate campuses and a strong record of keeping trained guides in classrooms.','It earns its slot as the neighborhood-scale Montessori pick for the Park Hill–Mayfair corridor entries on the map.'],st:{enroll:'~200',ratio:'6:1',cls:'~18'}},
+ {name:'Paddington Station Preschool',type:'private',grades:'ECE',levels:['ECE'],area:'Wash Park / Speer',access:'Tuition (part- and full-day)',url:'https://www.google.com/search?q=Paddington+Station+Preschool+Colorado',lat:39.7,lng:-104.96,blurb:'A Denver classic: joyful, play-based preschool that generations of central-Denver kids have passed through.',g:{exp:6,arts:6,ath:2,stem:2,fit:8},about:['One of central Denver’s longest-running play-based preschools, unapologetic about childhood: paint, blocks, songs, and time outdoors.','It represents the traditional play-based option on this list — no pedagogy brand, just decades of doing early childhood warmly and well.'],st:{enroll:'~130',ratio:'6:1',cls:'~14'}},
+ {name:'Family Star Montessori',type:'public',grades:'ECE',levels:['ECE'],area:'Northside / Curtis Park',access:'Early Head Start / income-qualified',url:'https://www.google.com/search?q=Family+Star+Montessori+Colorado',lat:39.752,lng:-105.025,blurb:'Montessori delivered through Early Head Start — free, authentic, and community-rooted.',g:{exp:6,arts:5,ath:2,stem:3,fit:8},about:['A nonprofit running authentic Montessori classrooms inside an Early Head Start framework across two Denver campuses.','It’s ranked for proving the point that matters most in ECE policy: the best pedagogy in this band can be free where families qualify.'],st:{enroll:'~180',ratio:'4:1',cls:'~12'}},
+ {name:'Mile High Early Learning',type:'public',grades:'ECE',levels:['ECE'],area:'Multiple Denver campuses',access:'Subsidized (CCCAP/UPK) + tuition',url:'https://www.google.com/search?q=Mile+High+Early+Learning+Colorado',lat:39.74,lng:-104.99,blurb:'Denver’s oldest and largest network of subsidized early-childhood centers.',g:{exp:5,arts:4,ath:2,stem:3,fit:6},about:['Denver’s largest nonprofit early-learning network, operating accredited centers across the city with sliding-scale access.','It’s the scale player on the list — for many Denver families it is the accessible quality option, which makes it structurally important.'],st:{enroll:'~600',ratio:'5:1',cls:'~15'}},
+ {name:'Auraria Early Learning Center',type:'public',grades:'ECE',levels:['ECE'],area:'Auraria Campus (downtown)',access:'Student/staff priority + community tuition',url:'https://www.google.com/search?q=Auraria+Early+Learning+Center+Colorado',lat:39.745,lng:-105.005,blurb:'NAEYC-accredited center on the downtown tri-college campus.',g:{exp:5,arts:5,ath:2,stem:4,fit:7},about:['The tri-institutional campus center serving student and staff families downtown, NAEYC-accredited with community seats when space allows.','It’s included as the strongest campus-linked program — and a quietly excellent option for anyone working near the Auraria corridor.'],st:{enroll:'~200',ratio:'5:1',cls:'~14'}},
+ {name:'Temple Emanuel Early Learning Center',type:'private',grades:'ECE',levels:['ECE'],area:'Hilltop / East Denver',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Temple+Emanuel+Early+Learning+Center+Colorado',lat:39.71,lng:-104.93,blurb:'East Denver’s established synagogue-based preschool — warm, play-forward, open to all families.',g:{exp:5,arts:6,ath:2,stem:2,fit:8},about:['A long-established congregation-based preschool with play-forward classrooms and a strong parent community, welcoming families of all backgrounds.','It stands in for Denver’s deep bench of faith-community preschools — often the warmest and best-staffed rooms in their neighborhoods.'],st:{enroll:'~150',ratio:'5:1',cls:'~13'}},
+ {name:'Denver Jewish Day School Early Childhood',type:'private',grades:'ECE',levels:['ECE'],area:'SE Denver',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Denver+Jewish+Day+School+Early+Childhood+Colorado',lat:39.67,lng:-104.885,blurb:'The ECE division of DJDS — Reggio-inspired practice within a K–12 continuum.',g:{exp:6,arts:6,ath:2,stem:3,fit:8},about:['The early-childhood division of Denver Jewish Day School, running Reggio-inspired classrooms with the resources of a full K–12 behind it.','It’s listed for the continuum play: families who want one community from age two through twelfth grade have few options this coherent.'],st:{enroll:'~120',ratio:'5:1',cls:'~13'}},
+ {name:'Steele Cooperative Preschool',type:'private',grades:'ECE',levels:['ECE'],area:'Wash Park',access:'Co-op tuition (parent shifts)',url:'https://www.google.com/search?q=Steele+Cooperative+Preschool+Colorado',lat:39.7,lng:-104.955,blurb:'A tiny Wash Park parent co-op with a decades-long waiting list culture.',g:{exp:6,arts:5,ath:2,stem:2,fit:9},about:['A small parents-in-the-classroom cooperative that has served the Wash Park blocks for decades at co-op prices.','It’s the second co-op on the list by design — showing the model exists on both sides of the city, not just in Park Hill.'],st:{enroll:'~60',ratio:'5:1',cls:'~12'}},
+ {name:'Acorn School for Early Childhood Development',type:'private',grades:'ECE',levels:['ECE'],area:'Boulder',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Acorn+School+for+Early+Childhood+Development+Colorado',lat:40.02,lng:-105.28,blurb:'Boulder’s intimate, relationship-first early-childhood school.',g:{exp:7,arts:6,ath:2,stem:2,fit:9},about:['A small Boulder program built on continuity of caregivers and unhurried, relationship-first early childhood.','It’s here as Boulder’s low-key counterpoint to the famous programs — less brand, equally serious practice.'],st:{enroll:'~70',ratio:'5:1',cls:'~12'}},
+ {name:'Mountain Shadows Montessori',type:'private',grades:'ECE',levels:['ECE'],area:'Gunbarrel / North Boulder',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Mountain+Shadows+Montessori+Colorado',lat:40.06,lng:-105.2,blurb:'AMI Montessori on a rural-feeling campus with animals and acreage.',g:{exp:8,arts:5,ath:2,stem:3,fit:8},about:['An AMI-recognized Montessori on a semi-rural Gunbarrel campus where the outdoor environment — gardens, animals — is part of the prepared environment.','It ranks for pairing orthodox Montessori credentials with the most nature-forward campus in the Boulder ECE set.'],st:{enroll:'~150',ratio:'6:1',cls:'~16'}},
+ {name:'Shepherd Valley Waldorf School (early childhood)',type:'private',grades:'ECE',levels:['ECE'],area:'Niwot',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Shepherd+Valley+Waldorf+School+Colorado',lat:40.08,lng:-105.16,blurb:'LifeWays/Waldorf early childhood on open land east of the foothills.',g:{exp:8,arts:7,ath:2,stem:1,fit:8},about:['The early-childhood program of Niwot’s Waldorf school: rhythm, domestic arts, and long outdoor mornings on open land.','It’s the rural Waldorf entry — for families sold on the pedagogy, it extends the Shining Mountain option north and east.'],st:{enroll:'~90',ratio:'6:1',cls:'~14'}},
+ {name:'TLC Learning Center',type:'public',grades:'ECE',levels:['ECE'],area:'Longmont',access:'Sliding scale / therapeutic seats',url:'https://www.google.com/search?q=TLC+Learning+Center+Colorado',lat:40.16,lng:-105.11,blurb:'Longmont’s inclusive center blending early learning with on-site pediatric therapy.',g:{exp:5,arts:4,ath:2,stem:3,fit:8},about:['A Longmont nonprofit integrating early education with on-site pediatric therapies, serving typical learners and children with delays together.','It’s the northern counterpart to Sewall — proof the inclusion model exists outside Denver proper.'],st:{enroll:'~180',ratio:'4:1',cls:'~12'}},
+ {name:'Wild Plum Center',type:'public',grades:'ECE',levels:['ECE'],area:'Longmont',access:'Head Start / income-qualified',url:'https://www.google.com/search?q=Wild+Plum+Center+Colorado',lat:40.17,lng:-105.1,blurb:'St. Vrain’s Head Start provider — free, accredited early learning for qualifying families.',g:{exp:4,arts:4,ath:2,stem:3,fit:7},about:['The Head Start and Early Head Start provider for the St. Vrain valley, with accredited classrooms and family services attached.','Included because a genuinely useful ECE list has to show where free quality lives — this is it for the Longmont-area entries.'],st:{enroll:'~300',ratio:'4:1',cls:'~14'}},
+ {name:'Bethany Early Childhood Center',type:'private',grades:'ECE',levels:['ECE'],area:'Cherry Hills Village',access:'Tuition (part- and full-day)',url:'https://www.google.com/search?q=Bethany+Early+Childhood+Center+Colorado',lat:39.65,lng:-104.94,blurb:'The south side’s established church-campus preschool with unusually large grounds.',g:{exp:6,arts:5,ath:2,stem:2,fit:8},about:['A church-campus early-childhood center serving the Cherry Hills area for decades, with big outdoor space and a traditional preschool rhythm.','It’s the south-metro representative of the parish-preschool tradition — often the best value in expensive zip codes.'],st:{enroll:'~160',ratio:'6:1',cls:'~14'}},
+ {name:'Cherry Hills Christian Preschool',type:'private',grades:'ECE',levels:['ECE'],area:'Highlands Ranch',access:'Tuition (part- and full-day)',url:'https://www.google.com/search?q=Cherry+Hills+Christian+Preschool+Colorado',lat:39.56,lng:-104.97,blurb:'The preschool arm of the south suburbs’ big Christian school campus.',g:{exp:4,arts:5,ath:3,stem:3,fit:7},about:['The early-childhood division of a large south-suburban Christian school, feeding its own elementary and the Douglas County publics alike.','Listed for the Highlands Ranch entries: a faith-based start that doesn’t commit families to private school afterward.'],st:{enroll:'~150',ratio:'7:1',cls:'~15'}},
+ {name:'Compass Montessori (early childhood)',type:'charter',grades:'ECE',levels:['ECE'],area:'Golden / Wheat Ridge (Jeffco)',access:'Preschool tuition; K+ lottery',url:'https://www.google.com/search?q=Compass+Montessori+Colorado',lat:39.73,lng:-105.19,blurb:'Jeffco’s charter Montessori — paid preschool that feeds a free Montessori K–12.',g:{exp:7,arts:5,ath:2,stem:3,fit:7},about:['The early-childhood program of Jeffco’s Compass Montessori charter: tuition-based preschool that continues into a free, public Montessori elementary and beyond.','It’s strategically important on this list — the only ECE entry that converts into a free Montessori seat, which changes the math for west-side families.'],st:{enroll:'~120',ratio:'7:1',cls:'~18'}},
+ {name:'Crème de la Crème (Greenwood Village)',type:'private',grades:'ECE',levels:['ECE'],area:'Greenwood Village / Lone Tree',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Crème+de+la+Crème+Colorado',lat:39.56,lng:-104.87,blurb:'The upscale full-service chain — long hours, specialist classes, resort-grade facilities.',g:{exp:4,arts:6,ath:4,stem:4,fit:5},about:['A national premium chain headquartered in Colorado, known for hotel-grade facilities, enrichment specialists, and hours built for demanding careers.','It represents the full-service commercial tier honestly: less pedagogy-driven than the independents above it, unbeatable on facilities and convenience.'],st:{enroll:'~300',ratio:'7:1',cls:'~16'}},
+ {name:'Bright Horizons (metro centers)',type:'private',grades:'ECE',levels:['ECE'],area:'Multiple metro locations',access:'Tuition (often employer-linked)',url:'https://www.google.com/search?q=Bright+Horizons+Colorado',lat:39.62,lng:-104.9,blurb:'The employer-benefit standard — dependable, accredited corporate childcare.',g:{exp:4,arts:4,ath:2,stem:4,fit:5},about:['The national employer-sponsored childcare provider, operating accredited centers across the metro, often at reduced cost through company benefits.','It’s listed because for many relocating families the real question is whether their employer’s Bright Horizons benefit works here — it does.'],st:{enroll:'per center',ratio:'6:1',cls:'~14'}},
+ {name:'Primrose Schools (metro locations)',type:'private',grades:'ECE',levels:['ECE'],area:'Multiple metro locations',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Primrose+Schools+Colorado',lat:39.76,lng:-104.88,blurb:'The strongest of the preschool franchises — structured curriculum, consistent quality control.',g:{exp:4,arts:5,ath:2,stem:5,fit:5},about:['A franchise system with an unusually rigorous curriculum and quality-control regime, with locations across the suburbs.','Among the chains, it’s the one educators tend to respect — the reliable suburban default when the independents have waitlists.'],st:{enroll:'per school',ratio:'7:1',cls:'~16'}},
+ {name:'Guidepost Montessori (metro locations)',type:'private',grades:'ECE',levels:['ECE'],area:'Multiple metro locations',access:'Tuition (monthly)',url:'https://www.google.com/search?q=Guidepost+Montessori+Colorado',lat:39.73,lng:-104.98,blurb:'The fast-growing Montessori network — modern facilities, Montessori-trained staffing at chain scale.',g:{exp:5,arts:4,ath:2,stem:4,fit:6},about:['A rapidly expanding Montessori network bringing trained-guide classrooms and polished facilities to multiple metro locations.','Included as the scalable Montessori option: not as rooted as Jarrow or MCHD, but often the only Montessori with open seats.'],st:{enroll:'per campus',ratio:'6:1',cls:'~15'}},
+ {name:'The Goddard School (metro locations)',type:'private',grades:'ECE',levels:['ECE'],area:'Multiple metro locations',access:'Tuition (monthly)',url:'https://www.google.com/search?q=The+Goddard+School+Colorado',lat:39.59,lng:-104.88,blurb:'Play-based franchise with strong safety and licensing record across the suburbs.',g:{exp:4,arts:4,ath:2,stem:4,fit:5},about:['A national play-based franchise with numerous suburban metro locations and a consistent licensing record.','It rounds out the chain tier — a dependable option in the newer suburbs where independent programs are thin.'],st:{enroll:'per school',ratio:'7:1',cls:'~15'}},
+ {name:'DPS Early Education (Universal PreK)',type:'public',grades:'ECE',levels:['ECE'],area:'Districtwide (Denver)',access:'Free via CO Universal PreK + SchoolChoice',url:'https://www.google.com/search?q=DPS+Early+Education+Colorado',lat:39.742,lng:-104.988,blurb:'Denver Public Schools’ preschool classrooms — free half-day-plus under Colorado UPK.',g:{exp:4,arts:4,ath:2,stem:3,fit:5},about:['DPS runs preschool classrooms across the city, free for four-year-olds (and many three-year-olds) under Colorado’s Universal PreK program via SchoolChoice.','It’s here because since 2023 the free public option is real — for many families the question is no longer whether to pay, but which building to choose.'],st:{enroll:'districtwide',ratio:'8:1',cls:'~16'}},
+ {name:'Boulder Valley School District Preschools',type:'public',grades:'ECE',levels:['ECE'],area:'Districtwide (BVSD)',access:'Free/reduced via CO Universal PreK',url:'https://www.google.com/search?q=Boulder+Valley+School+District+Preschools+Colorado',lat:40.014,lng:-105.25,blurb:'BVSD’s school-based preschool classrooms under Universal PreK.',g:{exp:4,arts:4,ath:2,stem:3,fit:5},about:['Boulder Valley’s district preschool classrooms, embedded in neighborhood elementaries and funded through Colorado’s Universal PreK.','Listed alongside the DPS entry so the free public tier is visible on both sides of the metro — often in the same buildings as the top-ranked elementaries.'],st:{enroll:'districtwide',ratio:'8:1',cls:'~16'}},
 ];
 const TYPE_LABEL={private:'Private',public:'Public',charter:'Public charter/magnet'};
 const TYPE_CHIP={private:'t-private',public:'t-public',charter:'t-charter'};
@@ -779,20 +852,24 @@ const WHEEL_IDLE='<span class="wr-idle">hover a wedge · score &amp; meaning</sp
 // Reset-to-idle is DEFERRED (grace period): wedge→wedge moves cancel the pending reset, so the
 // readout swaps content directly without flashing the idle prompt between categories.
 let wrTimer=null, wrPending=null;
+function wheelMetaOf(el){ // criterion wheel (data-ckey) or school grade wheel (data-gkey)
+  if(el.dataset.ckey){const c=CRITERIA.find(x=>x.key===el.dataset.ckey);return c&&{short:c.short,label:c.label,color:CRIT_COLOR[c.key],desc:c.desc};}
+  const g=GMETA.find(x=>x[0]===el.dataset.gkey);return g&&{short:g[1],label:g[2],color:g[3],desc:g[4]};
+}
 document.addEventListener('mouseover',e=>{
-  const el=e.target.closest?e.target.closest('[data-ckey]'):null;
+  const el=e.target.closest?e.target.closest('[data-ckey],[data-gkey]'):null;
   if(!el)return;
   const wrap=el.closest('.wheel'), read=wrap&&wrap.querySelector('.wheel-read');
-  const c=CRITERIA.find(x=>x.key===el.dataset.ckey);
-  if(!read||!c)return;
+  const m=wheelMetaOf(el);
+  if(!read||!m)return;
   clearTimeout(wrTimer);
   if(wrPending&&wrPending!==read)wrPending.innerHTML=WHEEL_IDLE;
   wrPending=null;
   const off=el.dataset.off==='1';
-  read.innerHTML=`<div class="wt-head"><b style="color:${CRIT_COLOR[c.key]}">${c.short}</b> <b>${el.dataset.v}/10</b>${off?' · weight off':''} · ${c.label}</div><div class="wt-desc">${c.desc}</div>`;
+  read.innerHTML=`<div class="wt-head"><b style="color:${m.color}">${m.short}</b> <b>${el.dataset.v}/10</b>${off?' · weight off':''} · ${m.label}</div><div class="wt-desc">${m.desc}</div>`;
 });
 document.addEventListener('mouseout',e=>{
-  const el=e.target.closest?e.target.closest('[data-ckey]'):null;
+  const el=e.target.closest?e.target.closest('[data-ckey],[data-gkey]'):null;
   if(!el)return;
   const wrap=el.closest('.wheel'), read=wrap&&wrap.querySelector('.wheel-read');
   if(!read)return;
@@ -852,8 +929,8 @@ function hoodCardHTML(h,rank,score){
       <div class="note">${h.note}</div>
     </div>
     <div class="wheel">${wheelSVG(h)}<div class="wheel-read"><span class="wr-idle">hover a wedge · score &amp; meaning</span></div></div>
-    <div class="side"><span class="score">${score.toFixed(2)}</span><span class="score-label">Live score</span>
-      ${locateBtn('hood',h.name,h.lat,h.lng)}${favBtn('hood',HOODS.indexOf(h))}</div>
+    <div class="side"><div class="side-main"><span class="score">${score.toFixed(2)}</span><span class="score-label">Live score</span>
+      ${locateBtn('hood',h.name,h.lat,h.lng)}</div>${favBtn('hood',HOODS.indexOf(h))}</div>
     ${hoodExpansion(h)}`;
 }
 function renderHoods(){
@@ -864,31 +941,29 @@ function renderHoods(){
   rankedHoods().forEach(({h,score})=>{
     const excluded=(hideBudget&&h.budget==='over')||(hideHoa&&h.hoaHeavy);
     if(excluded&&!dimMode)return;
-    rank++;shown++;
+    rank++;
+    if(hoodQuery&&!h.name.toLowerCase().includes(hoodQuery))return;
+    shown++;
     const card=document.createElement('article');
     card.className='card hcard g-'+h.group+(rank<=3&&!excluded?' top3':'')+(excluded?' dimmed':'');
     card.innerHTML=hoodCardHTML(h,rank,score);
-    card.addEventListener('click',e=>{
-      if(e.target.closest('a,button,input'))return;
-      const was=card.classList.contains('open');
-      card.classList.toggle('open',!was);
-      card.querySelector('.exp-hint').innerHTML=!was?'\u25b4 close':'\u25be schools &amp; take';
-    });
+    cardToggle(card,HOOD_HINT);
     hoodListEl.appendChild(card);
   });
-  document.getElementById('countLine').textContent=`${shown} of ${HOODS.length} areas shown \u00b7 sorted by live weighted score`;
+  document.getElementById('countLine').textContent=`${shown} of ${HOODS.length} areas shown \u00b7 sorted by live weighted score${hoodQuery?` \u00b7 matching \u201c${hoodQuery}\u201d (ranks unchanged)`:''}`;
   renderFavs();
 }
 
 // =============== FAVORITES ===============
-function hoodCardToggle(card){
+function cardToggle(card,closedHint){
   card.addEventListener('click',e=>{
     if(e.target.closest('a,button,input'))return;
     const was=card.classList.contains('open');
     card.classList.toggle('open',!was);
-    card.querySelector('.exp-hint').innerHTML=!was?'\u25b4 close':'\u25be schools &amp; take';
+    card.querySelector('.exp-hint').innerHTML=!was?'\u25b4 close':closedHint;
   });
 }
+const HOOD_HINT='\u25be schools &amp; take', SCHOOL_HINT='\u25be about this school';
 function renderFavs(){
   const hEl=document.getElementById('favHoodList'), sEl=document.getElementById('favSchoolList');
   hEl.innerHTML='';sEl.innerHTML='';
@@ -900,14 +975,15 @@ function renderFavs(){
     const card=document.createElement('article');
     card.className='card hcard g-'+h.group;
     card.innerHTML=hoodCardHTML(h,i+1,score);
-    hoodCardToggle(card);
+    cardToggle(card,HOOD_HINT);
     hEl.appendChild(card);
   });
   [...favSchools].sort((a,b)=>a-b).forEach(i=>{
     const s=SCHOOLS[i];if(!s)return;
     const card=document.createElement('article');
-    card.className='card';
+    card.className='card scard';
     card.innerHTML=schoolCardHTML(s,i,i+1,'Composite rank');
+    cardToggle(card,SCHOOL_HINT);
     sEl.appendChild(card);
   });
   document.getElementById('favHoodEmpty').hidden=hCount>0;
@@ -923,7 +999,8 @@ document.addEventListener('click',e=>{
   set.has(idx)?set.delete(idx):set.add(idx);
   const on=set.has(idx);
   document.querySelectorAll(`.fav-btn[data-fkind="${kind}"][data-fidx="${idx}"]`).forEach(x=>{
-    x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);x.innerHTML=on?'\u2605 Saved':'\u2606 Save';
+    x.classList.toggle('on',on);x.setAttribute('aria-pressed',on);x.innerHTML=on?'\u2605':'\u2606';
+    x.title=on?'Remove from favorites':'Save to favorites';
   });
   renderFavs();syncHash();
 });
@@ -940,18 +1017,74 @@ document.querySelectorAll('.seg-btn.lvl').forEach(b=>b.addEventListener('click',
   document.querySelectorAll('.seg-btn.lvl').forEach(x=>x.classList.remove('active'));
   b.classList.add('active');renderSchools();
 }));
-const LVL_NAME={all:'',E:'elementary ',M:'middle ',H:'high '};
+const LVL_NAME={all:'',ECE:'early-childhood ',E:'elementary ',M:'middle ',H:'high '};
+const GMETA=[
+ ['exp','EXP','Experiential & outdoors','#3E6B3F','Outdoor, expeditionary, and hands-on project learning emphasis.'],
+ ['arts','ART','Arts & music','#E9B10E','Visual and performing arts program strength.'],
+ ['ath','ATH','Athletics','#C93A26','Athletics program depth and competitiveness.'],
+ ['stem','STM','STEM','#2D5D8C','Science, math, engineering, and computing depth.'],
+ ['fit','FIT','Small & personal','#8C6D46','Small classes and individual attention.']];
+function gradeWheelSVG(s){
+  if(!s.g)return'';
+  const CX=70,CY=72,R0=9,RMAX=50,N=5,SW=72,RH=RMAX+16;
+  const P=(a,r)=>[CX+r*Math.cos(a*Math.PI/180),CY+r*Math.sin(a*Math.PI/180)];
+  let wedges='',grid='',labels='',hits='';
+  GMETA.forEach(([k,short,,color],i)=>{
+    const v=s.g[k];
+    const a0=-90+i*SW, a1=-90+(i+1)*SW;
+    const r1=R0+(RMAX-R0)*v/10;
+    const [ax,ay]=P(a0,r1),[bx,by]=P(a1,r1),[cx2,cy2]=P(a1,R0),[dx,dy]=P(a0,R0);
+    wedges+=`<path class="wedge" fill="${color}" d="M ${ax.toFixed(1)} ${ay.toFixed(1)} A ${r1.toFixed(1)} ${r1.toFixed(1)} 0 0 1 ${bx.toFixed(1)} ${by.toFixed(1)} L ${cx2.toFixed(1)} ${cy2.toFixed(1)} A ${R0} ${R0} 0 0 0 ${dx.toFixed(1)} ${dy.toFixed(1)} Z"></path>`;
+    const mid=(a0+a1)/2, [lx,ly]=P(mid,RMAX+8);
+    labels+=`<text class="wlabel" x="${lx.toFixed(1)}" y="${(ly+2).toFixed(1)}" text-anchor="middle">${short}</text>`;
+    const [hx1,hy1]=P(a0,RH),[hx2,hy2]=P(a1,RH);
+    hits+=`<path class="whit" data-gkey="${k}" data-v="${v}" d="M ${CX} ${CY} L ${hx1.toFixed(1)} ${hy1.toFixed(1)} A ${RH} ${RH} 0 0 1 ${hx2.toFixed(1)} ${hy2.toFixed(1)} Z"></path>`;
+  });
+  for(let lvl=1;lvl<=10;lvl++){const r=R0+(RMAX-R0)*lvl/10;grid+=`<circle class="wring ${lvl===10?'outer':''}" cx="${CX}" cy="${CY}" r="${r.toFixed(1)}"/>`;}
+  for(let i=0;i<N;i++){const a=-90+i*SW,[x1,y1]=P(a,R0),[x2,y2]=P(a,RMAX);grid+=`<line class="wspoke" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;}
+  return `<svg width="140" height="144" viewBox="0 0 140 144" role="img" aria-label="Program grade wheel for ${s.name}">${wedges}${grid}${labels}${hits}</svg>`;
+}
+let maxTuition=45, hoodQuery='', schoolQuery='';
+const tuitionOf=s=>{const m=/\$(\d+)/.exec(s.access);return m?+m[1]:null;};
+const SW_KEYS=['comp','exp','arts','ath','stem','fit'];
+const SW_DEF={comp:10,exp:0,arts:0,ath:0,stem:0,fit:0};
+let schoolWeights={...SW_DEF};
+const swDefault=()=>SW_KEYS.every(k=>schoolWeights[k]===SW_DEF[k]);
+const compScore=s=>10-9*SCHOOLS.indexOf(s)/(SCHOOLS.length-1); // composite rank mapped to 10..1
+function schoolScoreOf(s){
+  let n=schoolWeights.comp*compScore(s), d=schoolWeights.comp;
+  GMETA.forEach(([k])=>{const v=s.g?s.g[k]:5;n+=schoolWeights[k]*v;d+=schoolWeights[k];});
+  return d===0?0:n/d;
+}
+function syncSwUI(){document.querySelectorAll('#swRow input[type=range]').forEach(inp=>{inp.value=schoolWeights[inp.dataset.sw];inp.closest('label').querySelector('.swv').textContent=inp.value;});}
+document.querySelectorAll('#swRow input[type=range]').forEach(inp=>inp.addEventListener('input',()=>{
+  schoolWeights[inp.dataset.sw]=+inp.value;
+  inp.closest('label').querySelector('.swv').textContent=inp.value;
+  renderSchools();syncHash();
+}));
+document.getElementById('swReset').addEventListener('click',()=>{schoolWeights={...SW_DEF};syncSwUI();renderSchools();syncHash();});
+document.getElementById('tuitionMax').addEventListener('input',e=>{
+  maxTuition=+e.target.value;
+  document.getElementById('tuitionVal').textContent=maxTuition>=45?'any':'$'+maxTuition+'K';
+  renderSchools();
+});
+document.getElementById('hoodSearch').addEventListener('input',e=>{hoodQuery=e.target.value.trim().toLowerCase();renderHoods();});
+document.getElementById('schoolSearch').addEventListener('input',e=>{schoolQuery=e.target.value.trim().toLowerCase();renderSchools();});
 function schoolCardHTML(s,idx,rankNum,rankLabel){
   return `<div class="rank">${rankNum}</div>
     <div class="body">
       <div class="name-row"><span class="name">${s.name}</span>
-        <span class="chip ${TYPE_CHIP[s.type]}">${TYPE_LABEL[s.type]}</span><span class="chip">${s.grades}</span></div>
+        <span class="chip ${TYPE_CHIP[s.type]}">${TYPE_LABEL[s.type]}</span><span class="chip">${s.grades}</span>${s.about?`<span class="exp-hint">${SCHOOL_HINT}</span>`:''}</div>
       <div class="meta"><span><b>${s.area}</b></span><span class="access-note">Access: ${s.access}</span></div>
       <div class="note">${s.blurb}</div>
     </div>
-    <div class="side"><span class="score">#${rankNum}</span><span class="score-label">${rankLabel}</span>
-      ${locateBtn('school',s.name,s.lat,s.lng)}${favBtn('school',idx)}
-      <a class="site-link" href="${s.url}" target="_blank" rel="noopener">Website ↗</a></div>`;
+    <div class="wheel">${gradeWheelSVG(s)}<div class="wheel-read"><span class="wr-idle">hover a wedge · score &amp; meaning</span></div></div>
+    <div class="side"><div class="side-main"><span class="score">#${rankNum}</span><span class="score-label">${rankLabel}</span>
+      ${locateBtn('school',s.name,s.lat,s.lng)}
+      <a class="site-link" href="${s.url}" target="_blank" rel="noopener">Website ↗</a></div>${favBtn('school',idx)}</div>
+    ${s.about?`<div class="expand">${s.st?`<div class="ex-shead">Vitals · editorial approximations</div>
+      <div class="s-stats"><span>Enrollment <b>${s.st.enroll}</b></span><span>Student:teacher <b>${s.st.ratio}</b></span><span>Avg class size <b>${s.st.cls}</b></span><span>Access: <b>${s.access}</b></span></div>`:''}
+      <div class="ex-shead">About ${s.name}</div><p class="s-about">${s.about[0]}</p><p class="s-about">${s.about[1]}</p></div>`:''}`;
 }
 function renderSchools(){
   const el=document.getElementById('schoolList');el.innerHTML='';
@@ -961,17 +1094,24 @@ function renderSchools(){
     if(segMode==='public'&&!isPublic)return false;
     if(segMode==='private'&&isPublic)return false;
     if(lvlMode!=='all'&&!s.levels.includes(lvlMode))return false;
+    if(s.type==='private'&&maxTuition<45){const t=tuitionOf(s);if(t!==null&&t>maxTuition)return false;}
     return true;
   });
+  if(!swDefault())filtered.sort((a,b)=>schoolScoreOf(b)-schoolScoreOf(a));
+  const rankLabel=swDefault()?'Rank in view':'Weighted rank';
+  let shown=0;
   filtered.forEach((s,i)=>{
+    if(schoolQuery&&!(s.name+' '+s.area).toLowerCase().includes(schoolQuery))return;
+    shown++;
     const card=document.createElement('article');
-    card.className='card'+(i<3?' top3':'');
-    card.innerHTML=schoolCardHTML(s,SCHOOLS.indexOf(s),i+1,'Rank in view');
+    card.className='card scard'+(i<3?' top3':'');
+    card.innerHTML=schoolCardHTML(s,SCHOOLS.indexOf(s),i+1,rankLabel);
+    cardToggle(card,SCHOOL_HINT);
     el.appendChild(card);
   });
   const act=activeTypes();
   const typeName=act.length<3?(act.join(' + ')||'no')+' ':(segMode==='all'?'':segMode+' ');
-  document.getElementById('schoolCount').textContent=`Top ${filtered.length} ${typeName}${LVL_NAME[lvlMode]}schools \u00b7 rank = position within this view \u00b7 composite ordering`;
+  document.getElementById('schoolCount').textContent=`${schoolQuery?`${shown} of ${filtered.length}`:`Top ${filtered.length}`} ${typeName}${LVL_NAME[lvlMode]}schools${maxTuition<45?` \u00b7 private tuition \u2264 $${maxTuition}K`:''}${schoolQuery?` \u00b7 matching \u201c${schoolQuery}\u201d (ranks unchanged)`:''} \u00b7 rank = position within this view \u00b7 ${swDefault()?'composite ordering':'sorted by your program weights'}`;
 }
 
 // =============== TAB 3: REAL MAP (Leaflet) ===============
@@ -1051,6 +1191,8 @@ function renderDetail(kind,name){
     d.innerHTML=`<h3>${s.name}</h3>
       <div class="drank">School rank #${i+1} of ${SCHOOLS.length} \u00b7 research composite</div>
       <p>${s.blurb}</p>
+      <div class="wheel">${gradeWheelSVG(s)}<div class="wheel-read"><span class="wr-idle">hover a wedge \u00b7 score &amp; meaning</span></div></div>
+      ${s.about?`<p>${s.about[0]}</p><p>${s.about[1]}</p>`:''}
       <div class="dmeta">${TYPE_LABEL[s.type]} \u00b7 Grades ${s.grades} \u00b7 ${s.area}<br>Access: ${s.access}<br><a class="site-link dlink" href="${s.url}" target="_blank" rel="noopener">School website \u2197</a></div>`;
   }
 }
@@ -1069,8 +1211,12 @@ function openDrawer(o){document.getElementById('settingsDrawer').classList.toggl
   document.getElementById('drawerOverlay').classList.toggle('on',o);}
 document.getElementById('openSettings').addEventListener('click',()=>openDrawer(true));
 document.getElementById('closeSettings').addEventListener('click',()=>openDrawer(false));
-document.getElementById('drawerOverlay').addEventListener('click',()=>openDrawer(false));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')openDrawer(false);});
+function openSchoolDrawer(o){document.getElementById('schoolDrawer').classList.toggle('open',o);
+  document.getElementById('drawerOverlay').classList.toggle('on',o);}
+document.getElementById('openSchoolSettings').addEventListener('click',()=>openSchoolDrawer(true));
+document.getElementById('closeSchoolSettings').addEventListener('click',()=>openSchoolDrawer(false));
+document.getElementById('drawerOverlay').addEventListener('click',()=>{openDrawer(false);openSchoolDrawer(false);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){openDrawer(false);openSchoolDrawer(false);}});
 function setPersona(name){currentPersona=name;document.getElementById('personaName').textContent=name;}
 function applySchoolTypes(){
   const seg=document.getElementById('segType');
@@ -1091,7 +1237,8 @@ function buildHash(){
   const w=CRITERIA.map(c=>weights[c.key]).join(',');
   const act=activeTypes();
   const fh=[...favHoods].sort((a,b)=>a-b).join(','), fs=[...favSchools].sort((a,b)=>a-b).join(',');
-  return '#w='+w+'&a='+commuteAnchor+(act.length===3?'':'&t='+act.join(','))+(fh?'&fh='+fh:'')+(fs?'&fs='+fs:'');
+  const sw=swDefault()?'':'&sw='+SW_KEYS.map(k=>schoolWeights[k]).join(',');
+  return '#w='+w+'&a='+commuteAnchor+(act.length===3?'':'&t='+act.join(','))+(fh?'&fh='+fh:'')+(fs?'&fs='+fs:'')+sw;
 }
 function syncHash(){
   const h=buildHash();
@@ -1111,6 +1258,7 @@ function applyHash(){
     if(q.t!==undefined){const set=q.t.split(',');['public','charter','private'].forEach(t=>schoolTypes[t]=set.includes(t));applySchoolTypes();}
     if(q.fh)q.fh.split(',').forEach(x=>{const n=+x;if(Number.isInteger(n)&&n>=0&&n<HOODS.length)favHoods.add(n);});
     if(q.fs)q.fs.split(',').forEach(x=>{const n=+x;if(Number.isInteger(n)&&n>=0&&n<SCHOOLS.length)favSchools.add(n);});
+    if(q.sw){const v=q.sw.split(',').map(Number);if(v.length===6&&v.every(x=>Number.isInteger(x)&&x>=0&&x<=10)){SW_KEYS.forEach((k,i)=>schoolWeights[k]=v[i]);syncSwUI();}}
   }catch(e){}
 }
 function copyShare(btn){

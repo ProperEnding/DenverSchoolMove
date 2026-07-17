@@ -1,6 +1,6 @@
 {
-  "name": "where-next-denver",
-  "version": "4.23.0",
+  "name": "denver-weighted",
+  "version": "4.30.0",
   "private": true,
   "type": "module",
   "scripts": { "test": "node test/verify.mjs index.html" },

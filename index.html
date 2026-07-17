@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where Next: Denver Metro — v4.10</title>
+<title>Where Next: Denver Metro — v4.11</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -219,6 +219,8 @@
   .card.open .expand{display:block;}
   .ex-take{font-family:var(--serif);font-size:14.5px;line-height:1.5;margin-bottom:9px;}
   .ex-assess{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:12px;font-family:var(--mono);font-size:10.5px;}
+  .wheel-key{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--ink-soft);margin-bottom:12px;}
+  .wheel-key .wk-item b{font-weight:700;letter-spacing:.06em;}
   .ex-tag{display:inline-block;border:1.5px solid var(--ink);padding:2px 7px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-right:7px;}
   .ex-tag.pro{background:var(--green);color:var(--bone);}
   .ex-tag.con{background:var(--red);color:var(--bone);}
@@ -248,7 +250,7 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.10</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.11</div>
   <div class="header-row">
     <div>
       <h1>Where Next: <span class="accent">Denver Metro</span></h1>
@@ -338,7 +340,7 @@
 
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Built on the Where Next platform · v4.10</span>
+  <span>Built on the Where Next platform · v4.11</span>
 </footer>
 </div>
 
@@ -346,7 +348,7 @@
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <button class="close" id="modalClose" aria-label="Close">×</button>
     <h2 id="modalTitle">How the score works</h2>
-    <p>Each neighborhood is scored 1–10 on fifteen criteria; the overall score is a weighted average. The card wheel draws each criterion as a wedge (length = score) in five color families: <b style="color:#C93A26">education</b>, <b style="color:#B8860B">lifestyle</b>, <b style="color:#3E6B3F">land &amp; mountains</b>, <b style="color:#2D5D8C">practical</b>, <b style="color:#8C6D46">safety &amp; risk</b>. Zero-weighted wedges fade.</p>
+    <p>Each neighborhood is scored 1–10 on fifteen criteria; the overall score is a weighted average. The score wheel on each card draws each criterion as a wedge (length = score), labeled with three-letter codes — expand any card for the full key, or hover a wedge — in five color families: <b style="color:#C93A26">education</b>, <b style="color:#B8860B">lifestyle</b>, <b style="color:#3E6B3F">land &amp; mountains</b>, <b style="color:#2D5D8C">practical</b>, <b style="color:#8C6D46">safety &amp; risk</b>. Zero-weighted wedges fade.</p>
     <div class="formula">score = Σ(criterion × weight) ÷ Σ(weights) → 0.00–10.00</div>
     <p>Weight 0 removes a criterion. Region ranks are live everywhere, including the map. Commute is computed from real distance to your chosen anchor (Downtown, DTC, or Boulder); airport is distance to DIA. Hazard risk &amp; insurability blends wildfire exposure (WUI), hail, and the post-Marshall insurance market — under Colorado’s HB25-1182 (effective July 2026), any buyer can demand a property’s insurer wildfire score and formally appeal it. Safety reflects relative property/violent crime patterns; both are editorial 1–10 reads, not actuarial ratings.</p>
     <h3>The map</h3>
@@ -465,7 +467,7 @@ const CITY_LABELS=[
  {n:'ARVADA', ll:[39.80,-105.09]},
 ];
 
-// (stylized basemap removed in v4.10 — the Map tab uses real tiles)
+// (stylized basemap removed in v4.11 — the Map tab uses real tiles)
 
 // hood boundary as SVG path string (real rings or geometric suburb shape)
 function hoodPath(name){
@@ -721,7 +723,7 @@ function wheelSVG(h){
     const [ax,ay]=P(a0,r1),[bx,by]=P(a1,r1),[cx2,cy2]=P(a1,R0),[dx,dy]=P(a0,R0);
     wedges+=`<path class="wedge ${off?'muted':''}" fill="${CRIT_COLOR[key]}" d="M ${ax.toFixed(1)} ${ay.toFixed(1)} A ${r1.toFixed(1)} ${r1.toFixed(1)} 0 0 1 ${bx.toFixed(1)} ${by.toFixed(1)} L ${cx2.toFixed(1)} ${cy2.toFixed(1)} A ${R0} ${R0} 0 0 0 ${dx.toFixed(1)} ${dy.toFixed(1)} Z"><title>${c.label}: ${v}/10${off?' (weight off)':''}</title></path>`;
     const mid=(a0+a1)/2, [lx,ly]=P(mid,RMAX+8);
-    labels+=`<text class="wlabel" x="${lx.toFixed(1)}" y="${(ly+2).toFixed(1)}" text-anchor="middle">${c.short}</text>`;
+    labels+=`<text class="wlabel" x="${lx.toFixed(1)}" y="${(ly+2).toFixed(1)}" text-anchor="middle">${c.short}<title>${c.label}: ${v}/10</title></text>`;
   });
   for(let lvl=1;lvl<=10;lvl++){
     const r=R0+(RMAX-R0)*lvl/10;
@@ -731,7 +733,7 @@ function wheelSVG(h){
     const a=-90+i*SW, [x1,y1]=P(a,R0),[x2,y2]=P(a,RMAX);
     grid+=`<line class="wspoke" x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"/>`;
   }
-  return `<svg width="140" height="144" viewBox="0 0 140 144" role="img" aria-label="Criteria wheel for ${h.name}">${wedges}${grid}${labels}</svg>`;
+  return `<svg width="140" height="144" viewBox="0 0 140 144" role="img" aria-label="Score wheel for ${h.name}">${wedges}${grid}${labels}</svg>`;
 }
 function distMi(aLat,aLng,bLat,bLng){
   const km=Math.sqrt(Math.pow((aLat-bLat)*110.95,2)+Math.pow((aLng-bLng)*85.2,2));
@@ -759,6 +761,7 @@ function hoodExpansion(h){
   const pros=[...vals].sort((a,b)=>b.v-a.v).slice(0,3);
   const cons=[...vals].sort((a,b)=>a.v-b.v).slice(0,3);
   const take=`${h.name.split(' (')[0]} wins on ${pros[0].label.toLowerCase()} (${pros[0].v}/10) and ${pros[1].label.toLowerCase()} (${pros[1].v}/10); the main tradeoffs are ${cons[0].label.toLowerCase()} (${cons[0].v}/10) and ${cons[1].label.toLowerCase()} (${cons[1].v}/10).`;
+  const keyItems=WHEEL_ORDER.map(k=>{const c=CRITERIA.find(x=>x.key===k);return `<span class="wk-item"><b style="color:${CRIT_COLOR[k]}">${c.short}</b> ${c.label}</span>`;}).join('');
   const rows=near.map(({s,i,d})=>`<div class="ex-srow"><span class="ex-rank">#${i+1}</span><span class="ex-sname">${s.name}</span>
       <span class="chip ${TYPE_CHIP[s.type]}">${TYPE_LABEL[s.type]}</span><span class="chip">${s.grades}</span>
       <span class="ex-dist">${d.toFixed(1)} mi</span>${locateBtn('school',s.name,s.lat,s.lng)}
@@ -769,6 +772,8 @@ function hoodExpansion(h){
       <span><span class="ex-tag pro">Strongest</span>${pros.map(p=>`${p.label} <b>${p.v}</b>`).join(' \u00b7 ')}</span>
       <span><span class="ex-tag con">Tradeoffs</span>${cons.map(p=>`${p.label} <b>${p.v}</b>`).join(' \u00b7 ')}</span>
     </div>
+    <div class="ex-shead">Score wheel key</div>
+    <div class="wheel-key">${keyItems}</div>
     <div class="ex-shead">Ideal school path \u00b7 top composite pick per level (within 3 mi, else nearest) \u00b7 # = rank within that level${activeTypes().length===3?'':' \u00b7 '+(activeTypes().join(' + ')||'no types selected')}</div>
     <div class="ex-path">${pathRows}</div>
     <div class="ex-shead">${fallback?(within?`Only ${within} listed within 3 mi \u2014 nearest three shown`:'No listed schools within 3 mi \u2014 nearest three'):'Listed schools within 3 mi'} \u00b7 # = overall composite rank</div>

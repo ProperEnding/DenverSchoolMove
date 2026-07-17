@@ -36,6 +36,8 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('card expands', card.classList.contains('open'));
   check('card has criteria wheel', !!card.querySelector('.wheel svg'));
   check('ideal path shows E/M/H rows', card.querySelectorAll('.ex-path .ex-lvl').length === 3);
+  check('score wheel key lists all 15 criteria', card.querySelectorAll('.wheel-key .wk-item').length === 15);
+  check('wheel key decodes abbreviations', /SCH/.test(card.querySelector('.wheel-key').textContent) && /Schools \(guaranteed by address\)/.test(card.querySelector('.wheel-key').textContent));
   const privCb = d.querySelector('input[name="schoolType"][value="private"]');
   privCb.click();
   check('uncheck private -> hash t=public,charter', dom.window.location.hash.includes('t=public,charter'));

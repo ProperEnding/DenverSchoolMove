@@ -1,6 +1,6 @@
 {
   "name": "denver-weighted",
-  "version": "4.41.0",
+  "version": "4.42.0",
   "private": true,
   "type": "module",
   "scripts": { "test": "node test/verify.mjs index.html" },

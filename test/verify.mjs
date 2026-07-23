@@ -37,6 +37,8 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('card expands', card.classList.contains('open'));
   check('card has criteria wheel', !!card.querySelector('.wheel svg'));
   check('ideal path shows E/M/H rows', card.querySelectorAll('.ex-path .ex-lvl').length === 3);
+  check('all 61 hoods carry zoned attendance data', (html.match(/,zoned:\{/g) || []).length === 61);
+  check('expanded card shows zoned-by-address block', /Zoned by address/.test(card.textContent) && /attendance boundary/.test(card.textContent));
   check('wheel hit sectors tile all 15 criteria', card.querySelectorAll('.wheel svg path.whit[data-ckey]').length === 15);
   const read = card.querySelector('.wheel-read');
   check('wheel readout shows idle prompt', /hover a wedge/i.test(read.textContent));

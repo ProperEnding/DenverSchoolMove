@@ -24,9 +24,9 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('quiz completes', d.getElementById('quizOverlay').hidden);
   check('persona set', d.getElementById('personaName').textContent === 'Your quiz result');
   check('hash written', dom.window.location.hash.startsWith('#w='));
-  check('53 hood cards', d.querySelectorAll('#hoodList .card').length === 53);
+  check('61 hood cards', d.querySelectorAll('#hoodList .card').length === 61);
   check('every card carries a district stripe class', [...d.querySelectorAll('#hoodList .card')].every(c => [...c.classList].some(cl => /^g-(dps|bvsv|cherry|other)$/.test(cl))));
-  check('93 school cards', d.querySelectorAll('#schoolList .card').length === 93);
+  check('108 school cards', d.querySelectorAll('#schoolList .card').length === 108);
   d.getElementById('openSettings').click();
   check('drawer opens', d.getElementById('settingsDrawer').classList.contains('open'));
   check('15 sliders', d.querySelectorAll('.slider-row').length === 15);
@@ -55,9 +55,9 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('uncheck private -> hash t=public,charter', dom.window.location.hash.includes('t=public,charter'));
   check('uncheck private hides private schools', !d.querySelector('#schoolList .chip.t-private'));
   check('type filter hides type seg buttons', d.getElementById('segType').style.display === 'none');
-  check('type filter keeps 53 areas', d.querySelectorAll('#hoodList .card').length === 53);
+  check('type filter keeps 61 areas', d.querySelectorAll('#hoodList .card').length === 61);
   privCb.click();
-  check('recheck private restores schools', d.querySelectorAll('#schoolList .card').length === 93);
+  check('recheck private restores schools', d.querySelectorAll('#schoolList .card').length === 108);
   dom.window.renderDetail('hood', 'City Park West');
   const det = d.getElementById('detail');
   check('map detail embeds full hood card', !!det.querySelector('.card.hcard.open'));
@@ -86,7 +86,7 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('no runtime errors (shared)', errors.length === 0);
   check('shared link bypasses quiz', d.getElementById('quizOverlay').hidden);
   check('shared anchor applied', d.getElementById('anchorSel').value === 'boulder');
-  check('legacy p= param tolerated, all areas shown', d.querySelectorAll('#hoodList .card').length === 53);
+  check('legacy p= param tolerated, all areas shown', d.querySelectorAll('#hoodList .card').length === 61);
   check('expansion areas render (Lakewood + Englewood/Aurora/Parker)', /Belmar \/ Central Lakewood/.test(d.getElementById('hoodList').textContent) && /Solterra/.test(d.getElementById('hoodList').textContent) && /Downtown Englewood/.test(d.getElementById('hoodList').textContent) && /Castle Pines/.test(d.getElementById('hoodList').textContent));
 }
 {
@@ -117,9 +117,18 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   const { dom, errors } = load('#w=10,4,8,5,6,1,6,8,4,5,6,4,2,6,5&a=downtown');
   await tick(400);
   const d = dom.window.document;
-  check('all 93 schools carry program grades', (html.match(/,g:\{exp:/g) || []).length === 93);
-  check('all 93 schools carry vitals', (html.match(/,st:\{enroll:/g) || []).length === 93);
-  check('all 93 schools carry diversity data', (html.match(/,dv:\{soc:/g) || []).length === 93);
+  check('all 108 schools carry program grades', (html.match(/,g:\{exp:/g) || []).length === 108);
+  check('all 108 schools carry vitals', (html.match(/,st:\{enroll:/g) || []).length === 108);
+  check('all 108 schools carry diversity data', (html.match(/,dv:\{soc:/g) || []).length === 108);
+  // "Small & personal" grade must stay derived from the real student:teacher ratio (de-bias fix)
+  const fitFromRatio = n => Math.max(1, Math.min(10, Math.round(10 - (n - 5) * 9 / 20)));
+  const schoolBlocks = html.match(/\{id:\d+,name:'(?:[^'\\]|\\.)*',type:[\s\S]*?dv:\{[^}]*\}[^}]*\}/g) || [];
+  let fitOK = 0, fitBad = 0;
+  for (const b of schoolBlocks) {
+    const r = b.match(/ratio:'~?(\d+):1'/), f = b.match(/fit:(\d+)\}/);
+    if (r && f) { (parseInt(f[1]) === fitFromRatio(parseInt(r[1])) ? fitOK++ : fitBad++); }
+  }
+  check('every fit grade is derived from its ratio', fitBad === 0 && fitOK === 108);
   const ccHS = html.match(/name:'Cherry Creek HS'[\s\S]*?lng:([-\d.]+)/)[1];
   check('Cherry Creek HS sits east of I-25 (lng > -104.90)', parseFloat(ccHS) > -104.90);
   check('highway route shields defined (I-25/I-70)', /HWY_SHIELDS/.test(html) && /r:'I-25'/.test(html) && /r:'I-70'/.test(html));
@@ -153,7 +162,7 @@ const tick = ms => new Promise(r => setTimeout(r, ms));
   check('school search keeps view rank (Peak to Peak #8)', d.querySelectorAll('#schoolList .card').length === 1 && d.querySelector('#schoolList .card .rank').textContent.trim().startsWith('8'));
   sq.value = ''; sq.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
   check('star sits as second column in side cell', !!d.querySelector('#hoodList .card .side > .fav-btn') && !!d.querySelector('#schoolList .card .side > .fav-btn') && !d.querySelector('.rank .fav-btn'));
-  check('all 93 schools carry about paragraphs', (html.match(/,about:\['/g) || []).length === 93);
+  check('all 108 schools carry about paragraphs', (html.match(/,about:\['/g) || []).length === 108);
   const sCard2 = d.querySelector('#schoolList .card.scard');
   sCard2.click();
   check('school card expands with 2-paragraph about', sCard2.classList.contains('open') && sCard2.querySelectorAll('.s-about').length === 2);

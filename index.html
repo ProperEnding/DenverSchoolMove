@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Denver, Weighted — v4.42</title>
+<title>Denver, Weighted — v4.43</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -293,7 +293,7 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.42</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.43</div>
   <div class="header-row">
     <div>
       <h1>Denver, <span class="accent">Weighted</span></h1>
@@ -406,7 +406,7 @@
 
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Denver, Weighted · v4.42</span>
+  <span>Denver, Weighted · v4.43</span>
 </footer>
 </div>
 
@@ -456,6 +456,7 @@
         <button class="preset-btn" data-preset="urban">Urban walkers</button>
         <button class="preset-btn" data-preset="newbuild">New-build turnkey</button>
         <button class="preset-btn" data-preset="ski">Ski weekenders</button>
+        <button class="preset-btn" data-preset="foodfun">Food &amp; fun</button>
       </div>
     </div>
     <div class="sliders" id="sliders"></div>
@@ -595,6 +596,7 @@ const PRESETS={
  urban:{schools:3,alt:5,food:10,dine:4,character:8,turnkey:3,lot:2,hoa:8,nature:4,mountains:3,value:5,proximity:10,airport:3,safety:6,hazard:6},
  newbuild:{schools:8,alt:6,food:4,dine:5,character:1,turnkey:10,lot:4,hoa:2,nature:5,mountains:4,value:6,proximity:5,airport:5,safety:8,hazard:6},
  ski:{schools:5,alt:4,food:4,dine:4,character:4,turnkey:4,lot:7,hoa:7,nature:9,mountains:10,value:5,proximity:2,airport:3,safety:6,hazard:3},
+ foodfun:{schools:10,alt:4,food:10,dine:10,character:5,turnkey:3,lot:2,hoa:5,nature:3,mountains:3,value:4,proximity:5,airport:2,safety:5,hazard:4},
 };
 // Commute & airport scores are computed from coordinates, not hand-scored
 const ANCHORS={downtown:{lat:39.7466,lng:-104.9922,label:'Downtown Denver'},dtc:{lat:39.622,lng:-104.895,label:'Denver Tech Center'},boulder:{lat:40.015,lng:-105.27,label:'Boulder'}};
@@ -1277,7 +1279,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')backdrop.classList.r
 // =============== SETTINGS DRAWER / SHARE ===============
 let currentPersona='Schools first';
 const lastW={};
-const PRESET_NAMES={default:'Schools first',equal:'Equal weights',value:'Value hunter',build:'Land & horses',urban:'Urban walkers',newbuild:'New-build turnkey',ski:'Ski weekenders'};
+const PRESET_NAMES={default:'Schools first',equal:'Equal weights',value:'Value hunter',build:'Land & horses',urban:'Urban walkers',newbuild:'New-build turnkey',ski:'Ski weekenders',foodfun:'Food & fun'};
 function openDrawer(o){document.getElementById('settingsDrawer').classList.toggle('open',o);
   document.getElementById('drawerOverlay').classList.toggle('on',o);}
 document.getElementById('openSettings').addEventListener('click',()=>openDrawer(true));

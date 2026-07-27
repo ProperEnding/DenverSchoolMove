@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Denver, Weighted — v4.43</title>
+<title>Denver, Weighted — v4.44</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -293,11 +293,11 @@
 <body>
 <div class="frame">
 <header>
-  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.43</div>
+  <div class="header-eyebrow">Denver Metro Neighborhood Research · 2026 · v4.44</div>
   <div class="header-row">
     <div>
       <h1>Denver, <span class="accent">Weighted</span></h1>
-      <div class="header-sub">61 neighborhoods and 108 schools on real geography — official Denver boundary
+      <div class="header-sub">61 neighborhoods and 109 schools on real geography — official Denver boundary
       polygons, stylized highways and waterways, and pinned school locations. Fifteen criteria, weighted your way — commute and airport computed from real distances.</div>
     </div>
     <button class="help-btn" id="helpBtn" aria-label="How the score works">?</button>
@@ -406,7 +406,7 @@
 
 <footer>
   <span>Scores 1–5, guaranteed-by-address · Prices approx. mid-2026 · School ranks: research composite</span>
-  <span>Denver, Weighted · v4.43</span>
+  <span>Denver, Weighted · v4.44</span>
 </footer>
 </div>
 
@@ -748,6 +748,7 @@ const SCHOOLS=[
  {id:50,name:'Steele Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Wash Park (DPS)',access:'Boundary (DPS)',url:'https://steele.dpsk12.org',lat:39.7102,lng:-104.9717,blurb:'The Wash Park boundary elementary \u2014 start of the South HS chain.',g:{exp:4,arts:5,ath:3,stem:5,fit:5},about:['A beloved DPS boundary elementary in Wash Park with strong fundamentals and deep parent involvement.','It’s one of the three central-Denver elementaries listed to show which city addresses actually guarantee a strong start.'],st:{enroll:'429',ratio:'16:1',cls:'~25'},dv:{soc:'25%',frl:'10%'}},
  {id:51,name:'Bromwell Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Country Club (DPS)',access:'Boundary (DPS)',url:'https://bromwell.dpsk12.org',lat:39.717,lng:-104.955,blurb:'Country Club\u2019s coveted boundary elementary on the East HS track.',g:{exp:4,arts:5,ath:3,stem:5,fit:5},about:['Cherry Creek North’s boundary elementary — small, high-performing, and a big piece of the neighborhood’s family appeal.','Like Steele and Cory, it’s here because a strong guaranteed elementary is what makes central Denver work for young families.'],st:{enroll:'313',ratio:'16:1',cls:'~24'},dv:{soc:'36%',frl:'15%'}},
  {id:52,name:'Cory Elementary',type:'public',grades:'K\u20135',levels:['E'],area:'Cory-Merrill (DPS)',access:'Boundary (DPS)',url:'https://cory.dpsk12.org',lat:39.686,lng:-104.945,blurb:'Anchor of the Cory\u2192Merrill\u2192South guaranteed chain.',g:{exp:4,arts:5,ath:3,stem:5,fit:5},about:['A DPS boundary elementary serving the Cory-Merrill area, paired with Slavens’ middle years as the neighborhood’s prized chain.','It’s listed as part of the strongest all-boundary elementary-through-eight path in the city — the engine of Cory-Merrill’s score.'],st:{enroll:'400',ratio:'17:1',cls:'~25'},dv:{soc:'30%',frl:'15%'}},
+ {id:109,name:'Teller Elementary',type:'public',grades:'K–5',levels:['E'],area:'Congress Park (DPS)',access:'Boundary (DPS)',url:'https://teller.dpsk12.org',lat:39.7344,lng:-104.9436,blurb:'A sought-after Congress Park neighborhood K–5 with an arts-integrated IB program.',g:{exp:4,arts:6,ath:3,stem:5,fit:4},about:['A sought-after DPS neighborhood elementary in Congress Park, K–5, with an established arts-integrated IB program and deep parent involvement.','It’s the zoned elementary for the Congress Park area – a boundary school families choose the address for, no lottery required.'],st:{enroll:'530',ratio:'18:1',cls:'~24'},dv:{soc:'30%',frl:'19%'}},
  {id:53,name:'Denver Academy',type:'private',grades:'2\u201312',levels:['E','M','H'],area:'University Hills',access:'Tuition (~$32K)',url:'https://www.denveracademy.org',lat:39.67471,lng:-104.93626,blurb:'The metro\u2019s standout for dyslexia/ADHD and diverse learners.',g:{exp:4,arts:6,ath:4,stem:5,fit:9},about:['A Denver institution built for kids with learning differences — dyslexia, ADHD, processing styles — where the entire pedagogy is designed around how they actually learn.','It’s on this list because for the family that needs it, nothing else here substitutes: it’s the metro’s deepest expertise in learning differences, full stop.'],st:{enroll:'415',ratio:'7:1',cls:'~10'},dv:{soc:'19%',frl:'n/a (no FRL at privates)'}},
  {id:54,name:'Denver Waldorf School',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'near DU',access:'Tuition (~$24K)',url:'https://www.denverwaldorf.org',lat:39.685,lng:-104.975,blurb:'Full-arc Waldorf education; arts- and rhythm-centered.',g:{exp:9,arts:9,ath:3,stem:3,fit:8},about:['Colorado’s original Waldorf school: arts-integrated, screen-light, rhythm-and-nature-based education from early childhood through high school age ranges.','It anchors the Waldorf option in the city proper — the fully realized version of the pedagogy that Mountain Phoenix offers in charter form.'],st:{enroll:'~300',ratio:'9:1',cls:'~18'},dv:{soc:'~20%',frl:'n/a (no FRL at privates)'}},
  {id:55,name:'Shining Mountain Waldorf',type:'private',grades:'PK\u201312',levels:['E','M','H'],area:'North Boulder',access:'Tuition (~$26K)',url:'https://www.smwaldorf.org',lat:40.0547,lng:-105.2849,blurb:'Boulder\u2019s PK\u201312 Waldorf school; deep nature integration.',g:{exp:9,arts:9,ath:3,stem:3,fit:10},about:['Boulder’s Waldorf school, carrying the pedagogy through high school with the mountains as a standing classroom.','It’s the county’s deepest alternative-education commitment — for families all-in on Waldorf, it’s the reason Boulder addresses work.'],st:{enroll:'199',ratio:'5:1',cls:'~18'},dv:{soc:'9%',frl:'n/a (no FRL at privates)'}},
